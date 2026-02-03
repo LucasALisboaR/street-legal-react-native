@@ -19,7 +19,6 @@ export default function TabLayout() {
 
   return (
     <Tabs
-      initialRouteName="explore"
       screenOptions={{
         tabBarActiveTintColor: BrandColors.orange,
         tabBarInactiveTintColor: BrandColors.lightGray,
@@ -34,7 +33,7 @@ export default function TabLayout() {
         },
       }}>
       <Tabs.Screen
-        name="explore"
+        name="index"
         options={{
           title: 'Explorar',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="location.fill" color={color} />,

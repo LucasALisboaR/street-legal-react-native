@@ -6,6 +6,8 @@ import {
     User
 } from 'firebase/auth';
 import { api } from './api';
+import { storageService } from './storage.service';
+import { SyncedUser } from './types';
 
 /**
  * Service de autenticação
@@ -13,10 +15,32 @@ import { api } from './api';
  */
 export const authService = {
   /**
-   * Realiza login do usuário
+   * Realiza login do usuário e sincroniza com o backend
+   * Não permite acesso ao sistema até que a sincronização seja bem-sucedida
    */
   login: async (email: string, password: string): Promise<User> => {
+    // 1. Fazer login no Firebase
     const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password);
+    
+    // 2. Sincronizar com o backend - OBRIGATÓRIO antes de permitir acesso
+    try {
+      const syncedUser = await api.post<SyncedUser>('/users/sync');
+      console.log('Retorno da API /users/sync:', syncedUser);
+      
+      // 3. Salvar usuário sincronizado no AsyncStorage
+      await storageService.saveSyncedUser(syncedUser);
+    } catch (error: any) {
+      // Se a sincronização falhar, fazer logout do Firebase
+      await auth.signOut();
+      
+      // Relançar o erro para que a UI possa tratar
+      const syncError = new Error(
+        error.message || 'Erro ao sincronizar usuário com o servidor. Tente novamente.'
+      );
+      (syncError as any).isSyncError = true;
+      throw syncError;
+    }
+    
     return userCredential.user;
   },
 
@@ -34,13 +58,27 @@ export const authService = {
         email: email.trim(),
       }, { skipAuth: true });
     } catch (error: any) {
-      // Se houver erro ao criar no backend, ainda mantemos o usuário no Firebase
-      // mas relançamos o erro para que a UI possa tratar adequadamente
+      // Se houver erro ao criar no backend, fazer logout e relançar erro
+      await auth.signOut();
       console.error('Erro ao criar usuário no backend:', error);
-      // Adiciona uma flag para identificar que é erro do backend
       const backendError = new Error(error.message || 'Erro ao sincronizar com o servidor');
       (backendError as any).isBackendError = true;
       throw backendError;
+    }
+    
+    // Após criar o usuário, sincronizar com o backend e salvar no storage
+    try {
+      const syncedUser = await api.post<SyncedUser>('/users/sync');
+      console.log('Retorno da API /users/sync:', syncedUser);
+      await storageService.saveSyncedUser(syncedUser);
+    } catch (error: any) {
+      // Se a sincronização falhar, fazer logout
+      await auth.signOut();
+      const syncError = new Error(
+        error.message || 'Erro ao sincronizar usuário com o servidor. Tente fazer login novamente.'
+      );
+      (syncError as any).isSyncError = true;
+      throw syncError;
     }
     
     return userCredential.user;

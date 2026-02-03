@@ -59,8 +59,12 @@ export default function NewUserScreen() {
     } catch (error: any) {
       let errorMessage = 'Erro ao criar conta. Tente novamente.';
       
+      // Erros de sincronização
+      if (error.isSyncError) {
+        errorMessage = error.message || 'Erro ao sincronizar com o servidor. Tente fazer login novamente.';
+      }
       // Erros do Firebase
-      if (error.code === 'auth/email-already-in-use') {
+      else if (error.code === 'auth/email-already-in-use') {
         errorMessage = 'Este e-mail já está em uso';
       } else if (error.code === 'auth/invalid-email') {
         errorMessage = 'E-mail inválido';
@@ -69,7 +73,7 @@ export default function NewUserScreen() {
       } 
       // Erros do backend
       else if (error.isBackendError) {
-        errorMessage = error.message || 'Conta criada no Firebase, mas houve um problema ao sincronizar com o servidor. Tente fazer login novamente.';
+        errorMessage = error.message || 'Erro ao criar conta no servidor. Tente novamente.';
       }
       
       Alert.alert('Erro', errorMessage);

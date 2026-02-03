@@ -5,7 +5,7 @@ import { Alert, StyleSheet } from 'react-native';
 import { AuthButton } from '@/components/auth/button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { auth } from '@/config/firebase';
+import { useSignOut as signOut } from '@/hooks/use-auth';
 
 export default function ProfileScreen() {
   const [loading, setLoading] = useState(false);
@@ -25,7 +25,7 @@ export default function ProfileScreen() {
           onPress: async () => {
             setLoading(true);
             try {
-              await auth.signOut();
+              await signOut();
               router.replace('/login');
             } catch {
               Alert.alert('Erro', 'Não foi possível fazer logout. Tente novamente.');

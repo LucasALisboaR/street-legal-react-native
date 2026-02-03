@@ -32,10 +32,17 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       await authService.login(email, password);
+      // Só redireciona se a sincronização foi bem-sucedida
       router.replace('/(tabs)');
     } catch (error: any) {
       let errorMessage = 'Erro ao fazer login. Tente novamente.';
-      if (error.code === 'auth/invalid-email') {
+      
+      // Erros de sincronização
+      if (error.isSyncError) {
+        errorMessage = error.message || 'Erro ao sincronizar com o servidor. Tente novamente.';
+      }
+      // Erros do Firebase
+      else if (error.code === 'auth/invalid-email') {
         errorMessage = 'E-mail inválido';
       } else if (error.code === 'auth/user-not-found') {
         errorMessage = 'Usuário não encontrado';
@@ -44,6 +51,7 @@ export default function LoginScreen() {
       } else if (error.code === 'auth/invalid-credential') {
         errorMessage = 'Credenciais inválidas';
       }
+      
       Alert.alert('Erro', errorMessage);
     } finally {
       setLoading(false);

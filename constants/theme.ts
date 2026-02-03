@@ -18,6 +18,18 @@ export const BrandColors = {
   placeholderGray: '#9BA1A6', // Placeholder dos inputs
 };
 
+export const MapColors = {
+  overlayBackground: 'rgba(20, 20, 20, 0.85)',
+  overlayBorder: 'rgba(255, 255, 255, 0.08)',
+  eventTypes: {
+    meetup: '#F97316',
+    race: '#EF4444',
+    photoshoot: '#22C55E',
+    garage: '#EAB308',
+  },
+  userRing: 'rgba(255, 69, 0, 0.35)',
+};
+
 export const Colors = {
   light: {
     text: '#11181C',

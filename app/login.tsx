@@ -1,23 +1,22 @@
 import { Link, router } from 'expo-router';
-import { signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useState } from 'react';
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AuthButton } from '@/components/auth/button';
 import { AuthInput } from '@/components/auth/input';
 import { Logo } from '@/components/auth/logo';
-import { auth } from '@/config/firebase';
 import { BrandColors } from '@/constants/theme';
+import { authService } from '@/services/auth.service';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -32,7 +31,7 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password);
+      await authService.login(email, password);
       router.replace('/(tabs)');
     } catch (error: any) {
       let errorMessage = 'Erro ao fazer login. Tente novamente.';

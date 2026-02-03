@@ -1,23 +1,22 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Link, router } from 'expo-router';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
 import React, { useState } from 'react';
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AuthButton } from '@/components/auth/button';
 import { AuthInput } from '@/components/auth/input';
-import { auth } from '@/config/firebase';
 import { BrandColors } from '@/constants/theme';
+import { authService } from '@/services/auth.service';
 
 export default function NewUserScreen() {
   const [fullName, setFullName] = useState('');
@@ -50,7 +49,7 @@ export default function NewUserScreen() {
 
     setLoading(true);
     try {
-      await createUserWithEmailAndPassword(auth, email.trim(), password);
+      await authService.register(email, password, fullName);
       Alert.alert('Sucesso', 'Conta criada com sucesso!', [
         {
           text: 'OK',
@@ -59,13 +58,20 @@ export default function NewUserScreen() {
       ]);
     } catch (error: any) {
       let errorMessage = 'Erro ao criar conta. Tente novamente.';
+      
+      // Erros do Firebase
       if (error.code === 'auth/email-already-in-use') {
         errorMessage = 'Este e-mail já está em uso';
       } else if (error.code === 'auth/invalid-email') {
         errorMessage = 'E-mail inválido';
       } else if (error.code === 'auth/weak-password') {
         errorMessage = 'A senha é muito fraca';
+      } 
+      // Erros do backend
+      else if (error.isBackendError) {
+        errorMessage = error.message || 'Conta criada no Firebase, mas houve um problema ao sincronizar com o servidor. Tente fazer login novamente.';
       }
+      
       Alert.alert('Erro', errorMessage);
     } finally {
       setLoading(false);

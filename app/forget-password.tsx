@@ -11,13 +11,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { sendPasswordResetEmail } from 'firebase/auth';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AuthButton } from '@/components/auth/button';
 import { AuthInput } from '@/components/auth/input';
 import { BrandColors } from '@/constants/theme';
-import { auth } from '@/config/firebase';
+import { authService } from '@/services/auth.service';
 
 export default function ForgetPasswordScreen() {
   const [email, setEmail] = useState('');
@@ -31,7 +30,7 @@ export default function ForgetPasswordScreen() {
 
     setLoading(true);
     try {
-      await sendPasswordResetEmail(auth, email.trim());
+      await authService.forgotPassword(email);
       Alert.alert(
         'Link enviado',
         'Verifique seu e-mail para redefinir sua senha',

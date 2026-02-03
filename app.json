@@ -57,7 +57,7 @@
       [
         "@rnmapbox/maps",
         {
-          "RNMapboxMapsDownloadToken": "sk.eyJ1IjoibHVjYXNsaXNib2EiLCJhIjoiY21sNnVqcHE1MGhvejNmcHRmdnU3eDc3ZyJ9.s-MkkuOlxenz3yvVX02xlQ"
+          "RNMapboxMapsDownloadToken":  "sk.eyJ1IjoibHVjYXNsaXNib2EiLCJhIjoiY21sNnVqcHE1MGhvejNmcHRmdnU3eDc3ZyJ9.s-MkkuOlxenz3yvVX02xlQ"
         }
       ]
     ],
@@ -69,7 +69,8 @@
       "router": {},
       "eas": {
         "projectId": "8b3c07f3-5ae3-43b5-986e-da344a06803b"
-      }
+      },
+      "apiUrl": "https://street-legal-backend.onrender.com"
     }
   }
 }

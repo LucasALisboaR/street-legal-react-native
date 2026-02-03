@@ -2,20 +2,21 @@ import { ElementRef, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Platform, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { SearchBar } from '@/components/ui/search-bar';
 import { Mapbox } from '@/config/mapbox';
 import { BrandColors } from '@/constants/theme';
-import { SearchBar } from '@/components/ui/search-bar';
+import { DriveHUD } from '@/features/map/components/DriveHUD';
 import { EventDetailsSheet } from '@/features/map/components/EventDetailsSheet';
 import { EventMarker } from '@/features/map/components/EventMarker';
-import { DriveHUD } from '@/features/map/components/DriveHUD';
 import { MapControls } from '@/features/map/components/MapControls';
 import { NearbyUserMarker } from '@/features/map/components/NearbyUserMarker';
-import { UserLocationMarker } from '@/features/map/components/UserLocationMarker';
 import { mockCenterCoordinate, mockEvents, mockNearbyUsers } from '@/features/map/data/mock';
 import { useLocation } from '@/features/map/hooks/useLocation';
-import { useUserHeading } from '@/features/map/hooks/useUserHeading';
 import { mapStyleUrl } from '@/features/map/styles/mapStyle';
 import { MapEvent, MapMode } from '@/features/map/types';
+
+// Imagem de seta para o bearing no Android
+const userLocationBearingImage = require('@/assets/images/arrow2.svg');
 
 const MIN_ZOOM = 11;
 const MAX_ZOOM = 18;
@@ -25,8 +26,7 @@ export function ExploreScreen() {
   const [zoomLevel, setZoomLevel] = useState(15);
   const [selectedEvent, setSelectedEvent] = useState<MapEvent | null>(null);
   const [mapMode] = useState<MapMode>('idle');
-  const { location, loading, error, permissionStatus } = useLocation();
-  const heading = useUserHeading({ enabled: permissionStatus === 'granted', smoothingFactor: 0.18 });
+  const { location, loading, error } = useLocation();
 
   const centerCoordinate = useMemo<[number, number]>(() => {
     if (location) {
@@ -77,12 +77,28 @@ export function ExploreScreen() {
           centerCoordinate={centerCoordinate}
           animationMode="flyTo"
           animationDuration={800}
+          followUserLocation={true}
         />
 
-        {location && (
-          <Mapbox.PointAnnotation id="user-location" coordinate={centerCoordinate}>
-            <UserLocationMarker heading={heading} />
-          </Mapbox.PointAnnotation>
+        {/* Location Puck com suporte a bearing no Android */}
+        {Platform.OS === 'android' ? (
+          <>
+            <Mapbox.Images images={{ headingArrow: userLocationBearingImage }} />
+            <Mapbox.LocationPuck
+              puckBearingEnabled={true}
+              puckBearing="heading"
+              bearingImage="headingArrow"
+              visible={true}
+              pulsing={{ isEnabled: true, color: BrandColors.orange, radius: 'accuracy' }}
+            />
+          </>
+        ) : (
+          <Mapbox.LocationPuck
+            puckBearingEnabled={true}
+            puckBearing="heading"
+            visible={true}
+            pulsing={{ isEnabled: true, color: BrandColors.orange, radius: 'accuracy' }}
+          />
         )}
 
         {mockEvents.map((event) => (

@@ -1,6 +1,7 @@
 import { Link, router } from 'expo-router';
 import React, { useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -81,6 +82,7 @@ export default function LoginScreen() {
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoComplete="email"
+                editable={!loading}
               />
 
               <AuthInput
@@ -91,11 +93,13 @@ export default function LoginScreen() {
                 secureTextEntry
                 autoCapitalize="none"
                 autoComplete="password"
+                editable={!loading}
               />
 
               <TouchableOpacity
                 onPress={() => router.push('/forget-password')}
                 style={styles.forgotPassword}
+                disabled={loading}
               >
                 <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
               </TouchableOpacity>
@@ -110,7 +114,7 @@ export default function LoginScreen() {
               <View style={styles.createAccountContainer}>
                 <Text style={styles.createAccountText}>Não tem uma conta? </Text>
                 <Link href="/new-user" asChild>
-                  <TouchableOpacity>
+                  <TouchableOpacity disabled={loading}>
                     <Text style={styles.createAccountLink}>Criar conta</Text>
                   </TouchableOpacity>
                 </Link>
@@ -119,6 +123,13 @@ export default function LoginScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color={BrandColors.orange} />
+          <Text style={styles.loadingText}>Sincronizando com o servidor...</Text>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -167,6 +178,18 @@ const styles = StyleSheet.create({
     color: BrandColors.orange,
     fontSize: 14,
     fontWeight: '600',
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 16,
+  },
+  loadingText: {
+    color: BrandColors.white,
+    fontSize: 16,
+    fontWeight: '500',
   },
 });
 

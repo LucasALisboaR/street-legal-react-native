@@ -16,7 +16,7 @@ import { mapStyleUrl } from '@/features/map/styles/mapStyle';
 import { MapEvent, MapMode } from '@/features/map/types';
 
 // Imagem de seta para o bearing no Android (deve ser PNG, não SVG)
-const userLocationBearingImage = require('@/assets/images/arrow.png');
+const userLocationBearingImage = require('@/assets/images/navigation-arrow-fill.png');
 
 const MIN_ZOOM = 11;
 const MAX_ZOOM = 18;
@@ -26,6 +26,7 @@ export function ExploreScreen() {
   const [zoomLevel, setZoomLevel] = useState(15);
   const [selectedEvent, setSelectedEvent] = useState<MapEvent | null>(null);
   const [mapMode] = useState<MapMode>('idle');
+  const [followUserLocation, setFollowUserLocation] = useState(true);
   const { location, loading, error } = useLocation();
 
   const centerCoordinate = useMemo<[number, number]>(() => {
@@ -39,26 +40,65 @@ export function ExploreScreen() {
     if (!location || !cameraRef.current) {
       return;
     }
-    cameraRef.current.setCamera({
-      centerCoordinate: [location.coords.longitude, location.coords.latitude],
-      zoomLevel,
-      animationDuration: 600,
-    });
-  }, [location, zoomLevel]);
+    // Só atualiza se estiver seguindo a localização
+    if (followUserLocation) {
+      cameraRef.current.setCamera({
+        centerCoordinate: [location.coords.longitude, location.coords.latitude],
+        zoomLevel,
+        animationDuration: 600,
+      });
+    }
+  }, [location, followUserLocation, zoomLevel]);
 
-  const handleZoomIn = () => setZoomLevel((prev) => Math.min(prev + 1, MAX_ZOOM));
-  const handleZoomOut = () => setZoomLevel((prev) => Math.max(prev - 1, MIN_ZOOM));
+  const handleZoomIn = () => {
+    setFollowUserLocation(false);
+    const newZoom = Math.min(zoomLevel + 1, MAX_ZOOM);
+    setZoomLevel(newZoom);
+    if (cameraRef.current) {
+      cameraRef.current.setCamera({
+        zoomLevel: newZoom,
+        animationDuration: 200,
+      });
+    }
+  };
+
+  const handleZoomOut = () => {
+    setFollowUserLocation(false);
+    const newZoom = Math.max(zoomLevel - 1, MIN_ZOOM);
+    setZoomLevel(newZoom);
+    if (cameraRef.current) {
+      cameraRef.current.setCamera({
+        zoomLevel: newZoom,
+        animationDuration: 200,
+      });
+    }
+  };
 
   const handleCenterUser = () => {
     if (!location || !cameraRef.current) {
       return;
     }
+    setFollowUserLocation(true);
     cameraRef.current.setCamera({
       centerCoordinate: [location.coords.longitude, location.coords.latitude],
       zoomLevel,
       animationDuration: 500,
     });
   };
+
+  // Só renderiza o mapa quando tiver localização
+  if (loading || !location) {
+    return (
+      <View style={styles.root}>
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color={BrandColors.orange} />
+          <Text style={styles.loadingText}>
+            {loading ? 'Obtendo localização...' : 'Aguardando localização...'}
+          </Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.root}>
@@ -73,11 +113,11 @@ export function ExploreScreen() {
       >
         <Mapbox.Camera
           ref={cameraRef}
-          zoomLevel={zoomLevel}
-          centerCoordinate={centerCoordinate}
-          animationMode="flyTo"
-          animationDuration={800}
-          followUserLocation={true}
+          defaultSettings={{
+            zoomLevel: 15,
+            centerCoordinate: centerCoordinate,
+          }}
+          followUserLocation={followUserLocation}
         />
 
         {/* Location Puck com suporte a bearing no Android */}
@@ -138,14 +178,7 @@ export function ExploreScreen() {
         </View>
       </SafeAreaView>
 
-      {loading && (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color={BrandColors.orange} />
-          <Text style={styles.loadingText}>Carregando mapa...</Text>
-        </View>
-      )}
-
-      {error && !loading && (
+      {error && (
         <View style={styles.errorOverlay}>
           <Text style={styles.errorText}>{error}</Text>
         </View>

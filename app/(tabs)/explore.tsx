@@ -23,10 +23,13 @@ try {
 
 export default function TabTwoScreen() {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [heading, setHeading] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let subscription: Location.LocationSubscription | null = null;
+
     (async () => {
       try {
         // Solicitar permissão de localização
@@ -38,15 +41,37 @@ export default function TabTwoScreen() {
         }
 
         // Obter localização atual
-        const currentLocation = await Location.getCurrentPositionAsync({});
+        const currentLocation = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.High,
+        });
         setLocation(currentLocation);
+        setHeading(currentLocation.coords.heading ?? null);
         setLoading(false);
+
+        // Observar mudanças de localização e heading
+        subscription = await Location.watchPositionAsync(
+          {
+            accuracy: Location.Accuracy.High,
+            distanceInterval: 1, // Atualizar a cada 1 metro
+            timeInterval: 1000, // Ou a cada 1 segundo
+          },
+          (newLocation) => {
+            setLocation(newLocation);
+            setHeading(newLocation.coords.heading ?? null);
+          }
+        );
       } catch (err) {
         setError('Erro ao obter localização');
         setLoading(false);
         console.error('Erro ao obter localização:', err);
       }
     })();
+
+    return () => {
+      if (subscription) {
+        subscription.remove();
+      }
+    };
   }, []);
 
   if (loading) {
@@ -82,6 +107,7 @@ export default function TabTwoScreen() {
   }
 
   const { longitude, latitude } = location.coords;
+  const rotationAngle = heading !== null ? heading : 0;
 
   return (
     <View style={styles.container}>
@@ -94,7 +120,14 @@ export default function TabTwoScreen() {
         />
         <Mapbox.PointAnnotation id="userLocation" coordinate={[longitude, latitude]}>
           <View style={styles.markerContainer}>
-            <View style={styles.marker} />
+            <View
+              style={[
+                styles.arrow,
+                {
+                  transform: [{ rotate: `${rotationAngle}deg` }],
+                },
+              ]}
+            />
           </View>
         </Mapbox.PointAnnotation>
       </Mapbox.MapView>
@@ -115,14 +148,20 @@ const styles = StyleSheet.create({
   markerContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+    width: 30,
+    height: 30,
   },
-  marker: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: '#007AFF',
-    borderWidth: 3,
-    borderColor: '#FFFFFF',
+  arrow: {
+    width: 0,
+    height: 0,
+    backgroundColor: 'transparent',
+    borderStyle: 'solid',
+    borderLeftWidth: 8,
+    borderRightWidth: 8,
+    borderBottomWidth: 20,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderBottomColor: '#FF9500',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,

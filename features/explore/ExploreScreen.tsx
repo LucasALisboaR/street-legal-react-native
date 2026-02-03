@@ -15,8 +15,8 @@ import { useLocation } from '@/features/map/hooks/useLocation';
 import { mapStyleUrl } from '@/features/map/styles/mapStyle';
 import { MapEvent, MapMode } from '@/features/map/types';
 
-// Imagem de seta para o bearing no Android
-const userLocationBearingImage = require('@/assets/images/arrow2.svg');
+// Imagem de seta para o bearing no Android (deve ser PNG, não SVG)
+const userLocationBearingImage = require('@/assets/images/arrow.png');
 
 const MIN_ZOOM = 11;
 const MAX_ZOOM = 18;

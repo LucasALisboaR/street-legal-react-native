@@ -1,4 +1,4 @@
-import { Tabs, Redirect } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
 import React from 'react';
 
 import { HapticTab } from '@/components/haptic-tab';
@@ -19,35 +19,20 @@ export default function TabLayout() {
 
   return (
     <Tabs
+      initialRouteName="explore"
       screenOptions={{
         tabBarActiveTintColor: BrandColors.orange,
         tabBarInactiveTintColor: BrandColors.lightGray,
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarStyle: {
-          backgroundColor: 'rgba(18, 18, 18, 0.96)',
-          borderTopWidth: 0,
-          height: 72,
-          paddingBottom: 12,
-          paddingTop: 10,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: 0.2,
-          shadowRadius: 10,
-          elevation: 15,
+          backgroundColor: 'transparent',
         },
         tabBarLabelStyle: {
           fontSize: 11,
           marginTop: -2,
         },
       }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
-      />
       <Tabs.Screen
         name="explore"
         options={{

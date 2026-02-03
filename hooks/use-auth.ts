@@ -19,3 +19,6 @@ export function useAuth() {
   return { user, loading, isAuthenticated: !!user };
 }
 
+export function useSignOut() {
+  return auth.signOut();
+}

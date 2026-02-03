@@ -8,6 +8,16 @@ import { Platform } from 'react-native';
 const tintColorLight = '#0a7ea4';
 const tintColorDark = '#fff';
 
+// Cores do design GEARHEAD BR
+export const BrandColors = {
+  orange: '#FF4500', // Laranja neon principal
+  white: '#FFFFFF',
+  darkGray: '#151718', // Background escuro
+  lightGray: '#9BA1A6', // Texto secundário
+  mediumGray: '#2A2A2A', // Botões e elementos secundários
+  placeholderGray: '#9BA1A6', // Placeholder dos inputs
+};
+
 export const Colors = {
   light: {
     text: '#11181C',

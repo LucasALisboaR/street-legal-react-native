@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { Button, ButtonText } from '@gluestack-ui/themed';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import { router } from 'expo-router';
 import React, { useMemo, useState } from 'react';
@@ -179,9 +180,9 @@ export default function ProfileScreen() {
           <View style={styles.errorState}>
             <Ionicons name="alert-circle" size={32} color={BrandColors.orange} />
             <Text style={styles.errorText}>Não foi possível carregar o perfil.</Text>
-            <TouchableOpacity style={styles.retryButton} onPress={refreshProfile}>
-              <Text style={styles.retryText}>Tentar novamente</Text>
-            </TouchableOpacity>
+            <Button style={styles.retryButton} onPress={refreshProfile}>
+              <ButtonText style={styles.retryText}>Tentar novamente</ButtonText>
+            </Button>
           </View>
         ) : (
           <>
@@ -248,12 +249,12 @@ export default function ProfileScreen() {
               multiline
             />
             <View style={styles.modalActions}>
-              <TouchableOpacity style={styles.cancelButton} onPress={() => setEditing(false)}>
-                <Text style={styles.cancelText}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={saving}>
-                <Text style={styles.saveText}>{saving ? 'Salvando...' : 'Salvar'}</Text>
-              </TouchableOpacity>
+              <Button style={styles.cancelButton} onPress={() => setEditing(false)}>
+                <ButtonText style={styles.cancelText}>Cancelar</ButtonText>
+              </Button>
+              <Button style={styles.saveButton} onPress={handleSave} disabled={saving}>
+                <ButtonText style={styles.saveText}>{saving ? 'Salvando...' : 'Salvar'}</ButtonText>
+              </Button>
             </View>
           </View>
         </View>

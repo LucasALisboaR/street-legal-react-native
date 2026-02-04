@@ -3,7 +3,6 @@ import { ElementRef, useCallback, useMemo, useRef, useState } from 'react';
 import { Platform, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { SearchBar } from '@/components/ui/search-bar';
 import { Mapbox } from '@/config/mapbox';
 import { BrandColors } from '@/constants/theme';
 import { DriveHUD } from '@/features/map/components/DriveHUD';
@@ -167,9 +166,6 @@ export function ExploreScreen() {
       </Mapbox.MapView>
 
       <SafeAreaView style={styles.safeArea} pointerEvents="box-none">
-        <Box style={styles.topBar}>
-          <SearchBar onFilterPress={() => undefined} />
-        </Box>
 
         <Box style={styles.controls}>
           <MapControls

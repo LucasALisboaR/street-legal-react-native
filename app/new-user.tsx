@@ -165,6 +165,8 @@ export default function NewUserScreen() {
                 icon="person-add-outline"
                 onPress={handleCreateAccount}
                 loading={loading}
+                variant="secondary"
+                disabled={!fullName.trim() || !email.trim() || !password.trim() || !confirmPassword.trim() || !acceptedTerms || loading}
               />
 
               <View style={styles.loginContainer}>

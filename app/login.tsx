@@ -106,9 +106,11 @@ export default function LoginScreen() {
 
               <AuthButton
                 title="ENTRAR"
-                icon="arrow-forward"
+                icon="log-in-outline"
                 onPress={handleLogin}
                 loading={loading}
+                variant="secondary"
+                disabled={!email.trim() || !password.trim() || loading}
               />
 
               <View style={styles.createAccountContainer}>
@@ -127,7 +129,7 @@ export default function LoginScreen() {
       {loading && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="large" color={BrandColors.orange} />
-          <Text style={styles.loadingText}>Sincronizando com o servidor...</Text>
+          <Text style={styles.loadingText}>Sincronizando...</Text>
         </View>
       )}
     </SafeAreaView>

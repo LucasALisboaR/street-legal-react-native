@@ -103,6 +103,8 @@ export default function ForgetPasswordScreen() {
                 icon="paper-plane-outline"
                 onPress={handleSendResetLink}
                 loading={loading}
+                variant="secondary"
+                disabled={!email.trim() || loading}
               />
 
               <View style={styles.loginContainer}>

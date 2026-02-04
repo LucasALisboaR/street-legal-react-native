@@ -1,5 +1,6 @@
+import { Box, Spinner, Text } from '@gluestack-ui/themed';
 import { ElementRef, useCallback, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Platform, StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { SearchBar } from '@/components/ui/search-bar';
@@ -93,19 +94,19 @@ export function ExploreScreen() {
   // Só renderiza o mapa quando tiver localização
   if (loading || !location) {
     return (
-      <View style={styles.root}>
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color={BrandColors.orange} />
+      <Box style={styles.root}>
+        <Box style={styles.loadingOverlay}>
+          <Spinner size="large" color={BrandColors.orange} />
           <Text style={styles.loadingText}>
             {loading ? 'Obtendo localização...' : 'Aguardando localização...'}
           </Text>
-        </View>
-      </View>
+        </Box>
+      </Box>
     );
   }
 
   return (
-    <View style={styles.root}>
+    <Box style={styles.root}>
       <Mapbox.MapView
         style={styles.map}
         styleURL={mapStyleUrl}
@@ -166,30 +167,30 @@ export function ExploreScreen() {
       </Mapbox.MapView>
 
       <SafeAreaView style={styles.safeArea} pointerEvents="box-none">
-        <View style={styles.topBar}>
+        <Box style={styles.topBar}>
           <SearchBar onFilterPress={() => undefined} />
-        </View>
+        </Box>
 
-        <View style={styles.controls}>
+        <Box style={styles.controls}>
           <MapControls
             onZoomIn={handleZoomIn}
             onZoomOut={handleZoomOut}
             onCenterUser={handleCenterUser}
           />
-        </View>
+        </Box>
 
-        <View style={styles.bottomArea} pointerEvents="box-none">
+        <Box style={styles.bottomArea} pointerEvents="box-none">
           <DriveHUD visible={mapMode === 'driving'} />
           {selectedEvent && <EventDetailsSheet event={selectedEvent} />}
-        </View>
+        </Box>
       </SafeAreaView>
 
       {error && (
-        <View style={styles.errorOverlay}>
+        <Box style={styles.errorOverlay}>
           <Text style={styles.errorText}>{error}</Text>
-        </View>
+        </Box>
       )}
-    </View>
+    </Box>
   );
 }
 

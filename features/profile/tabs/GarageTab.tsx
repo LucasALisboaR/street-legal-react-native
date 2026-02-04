@@ -15,7 +15,63 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CAROUSEL_ITEM_WIDTH = SCREEN_WIDTH - 80; // 40px margin on each side + 24px padding
 const CAROUSEL_ITEM_SPACING = 16;
 
+// Imagens de drivetrain
+const drivetrainImages = {
+  FWD: require('@/assets/images/fwd.png'),
+  RWD: require('@/assets/images/rwd.png'),
+  AWD: require('@/assets/images/awd.png'),
+};
+
+// Função helper para obter a imagem do drivetrain
+const getDrivetrainImage = (drivetrain: string) => {
+  const upperDrivetrain = drivetrain.toUpperCase();
+  return drivetrainImages[upperDrivetrain as keyof typeof drivetrainImages] || drivetrainImages.FWD;
+};
+
 export function GarageTab({ garage }: GarageTabProps) {
+  // Mock de carros para desenvolvimento/teste
+  const mockCars: UserCar[] = [
+    {
+      id: '1',
+      brand: 'Nissan',
+      model: 'Skyline GT-R R34',
+      year: 1999,
+      color: 'Red',
+      nickname: 'Skyline',
+      trim: 'GT-R R34',
+      thumbnailUrl: 'https://img.freepik.com/psd-premium/carro-esporte-em-fundo-transparente-renderizacao-3d-ilustracao_494250-47862.jpg?semt=ais_hybrid&w=740&q=80',
+      specs: {
+        engine: 'V6',
+        horsepower: 500,
+        torque: 500,
+        transmission: 'Manual',
+        drivetrain: 'RWD',
+        fuelType: 'Gasoline',
+      },
+      modsList: ['Mod 1', 'Mod 2', 'Mod 3'],
+    },
+    {
+      id: '2',
+      brand: 'Nissan',
+      model: 'Skyline GT-R R34',
+      year: 1999,
+      color: 'Red',
+      nickname: 'Skyline',
+      trim: 'GT-R R34',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&h=600&fit=crop',
+      specs: {
+        engine: 'V6',
+        horsepower: 500,
+        torque: 500,
+        transmission: 'Manual',
+        drivetrain: 'AWD',
+        fuelType: 'Gasoline',
+      },
+      modsList: ['Mod 1', 'Mod 2', 'Mod 3'],
+    }
+  ];
+
+  garage = mockCars;
   const handleAddCar = () => {
     router.push('/create-car');
   };
@@ -41,30 +97,90 @@ export function GarageTab({ garage }: GarageTabProps) {
                   index === garage.length - 1 && { marginRight: 0 },
                 ]}
               >
-                <Box position="relative" w="100%" alignItems="center" justifyContent="center">
-                  <Image
-                    source={{ uri: car.thumbnailUrl }}
-                    style={styles.carImage}
-                    resizeMode="cover"
-                  />
-                  {/* Nome do carro com efeito 3D */}
-                  <Box
-                    position="absolute"
-                    bottom={-20}
-                    px="$4"
-                    py="$2"
-                    bg="rgba(0, 0, 0, 0.7)"
-                    borderRadius="$lg"
-                    style={styles.carNameContainer}
+                <Box 
+                  position="relative" 
+                  w="100%" 
+                  h="100%"
+                  bg={BrandColors.darkGray}
+                  borderRadius={24}
+                  overflow="hidden"
+                >
+                  {/* Imagem do carro com overlay escuro */}
+                  <Box position="absolute" w="100%" h="100%">
+                    <Image
+                      source={{ uri: car.thumbnailUrl }}
+                      style={styles.carImage}
+                      resizeMode="cover"
+                      accessibilityLabel={`${car.brand} ${car.model}`}
+                    />
+                    {/* Overlay gradiente escuro */}
+                    <Box 
+                      position="absolute" 
+                      w="100%" 
+                      h="100%"
+                      style={styles.darkOverlay}
+                    />
+                  </Box>
+
+                  {/* Informações no topo */}
+                  <Box 
+                    position="absolute" 
+                    top={0} 
+                    left={0} 
+                    right={0}
+                    px="$4" 
+                    pt="$4"
+                    flexDirection="row"
+                    justifyContent="space-between"
+                    alignItems="flex-start"
                   >
-                    <Text
-                      color={BrandColors.white}
-                      fontSize="$xl"
-                      fontWeight="$bold"
-                      style={styles.carName3D}
-                    >
-                      {car.fullName}
-                    </Text>
+                    {/* Topo esquerdo: Ano, Marca e Modelo */}
+                    <VStack gap="$1">
+                      <Text color={BrandColors.white} fontSize="$sm" fontWeight="$normal">
+                        {car.year}
+                      </Text>
+                      <Text color={BrandColors.white} fontSize="$lg" fontWeight="$bold">
+                        {car.brand.toUpperCase()}
+                      </Text>
+                      <Text color={BrandColors.orange} fontSize="$xl" fontWeight="$bold">
+                        {car.model.toUpperCase()}
+                      </Text>
+                    </VStack>
+
+                    {/* Topo direito: Boxes informativos */}
+                    <VStack gap="$2" alignItems="flex-end">
+                      {/* Box com horsepower */}
+                      {/* <Box
+                        bg={BrandColors.mediumGray}
+                        px="$3"
+                        py="$1.5"
+                        borderRadius="$md"
+                        style={styles.infoBox}
+                      >
+                        <Text color={BrandColors.white} fontSize="$sm" fontWeight="$bold">
+                          {car.specs.horsepower}
+                        </Text>
+                      </Box> */}
+                      {/* Box com drivetrain */}
+                      <Box
+                        bg={BrandColors.grayImg}
+                        px="$2.5"
+                        py="$2.5"
+                        borderRadius="$md"
+                        alignItems="center"
+                        justifyContent="center"
+                        style={styles.infoBox}
+                      >
+                        <Image
+                          source={getDrivetrainImage(car.specs.drivetrain)}
+                          style={{ width: 40, height: 40 }}
+                          resizeMode="contain"
+                        />
+                        <Text color={BrandColors.white} fontSize="$sm" fontWeight="$bold">
+                          {car.specs.drivetrain.toUpperCase()}
+                        </Text>
+                      </Box>
+                    </VStack>
                   </Box>
                 </Box>
               </Box>
@@ -133,25 +249,21 @@ const styles = StyleSheet.create({
   },
   carouselItem: {
     width: CAROUSEL_ITEM_WIDTH,
+    height: 280,
     marginRight: CAROUSEL_ITEM_SPACING,
   },
   carImage: {
     width: '100%',
-    height: 280,
-    borderRadius: 24,
+    height: '100%',
   },
-  carNameContainer: {
-    shadowColor: '#FF4500',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.8,
-    shadowRadius: 12,
-    elevation: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 69, 0, 0.3)',
+  darkOverlay: {
+    backgroundColor: 'rgba(21, 23, 24, 0.4)',
   },
-  carName3D: {
-    textShadowColor: 'rgba(255, 69, 0, 0.8)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 6,
+  infoBox: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
   },
 });

@@ -16,8 +16,22 @@ export interface UserCrew {
 
 export interface UserCar {
   id: string;
-  fullName: string;
+  brand: string;
+  model: string;
+  year: number;
+  color: string;
+  nickname: string;
+  trim: string;
   thumbnailUrl: string;
+  specs: {
+    engine: string;
+    horsepower: number;
+    torque: number;
+    transmission: string;
+    drivetrain: string;
+    fuelType: string;
+  },
+  modsList: string[];
 }
 
 export interface UserProfile {

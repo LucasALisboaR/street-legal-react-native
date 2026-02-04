@@ -5,6 +5,7 @@ const API_BASE_URL = Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUB
 
 interface RequestOptions extends RequestInit {
   skipAuth?: boolean;
+  isMultipart?: boolean;
 }
 
 /**
@@ -31,7 +32,7 @@ async function request<T>(
   endpoint: string,
   options: RequestOptions = {}
 ): Promise<T> {
-  const { skipAuth = false, headers = {}, ...restOptions } = options;
+  const { skipAuth = false, headers = {}, isMultipart = false, ...restOptions } = options;
 
   // Adicionar token de autenticação se disponível
   const authHeaders: HeadersInit = { ...headers };
@@ -44,10 +45,14 @@ async function request<T>(
   }
 
   // Configurar headers padrão
-  const defaultHeaders: HeadersInit = {
-    'Content-Type': 'application/json',
-    ...authHeaders,
-  };
+  const defaultHeaders: HeadersInit = isMultipart
+    ? {
+        ...authHeaders,
+      }
+    : {
+        'Content-Type': 'application/json',
+        ...authHeaders,
+      };
 
   const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
 
@@ -95,6 +100,14 @@ export const api = {
       body: data ? JSON.stringify(data) : undefined,
     }),
 
+  postMultipart: <T>(endpoint: string, data: FormData, options?: RequestOptions) =>
+    request<T>(endpoint, {
+      ...options,
+      method: 'POST',
+      body: data,
+      isMultipart: true,
+    }),
+
   /**
    * PUT request
    */
@@ -124,4 +137,3 @@ export const api = {
 
 // Services específicos por módulo devem ser criados em arquivos separados
 // Exemplo: services/auth.service.ts, services/user.service.ts, etc.
-

@@ -1,8 +1,8 @@
-import { ElementRef, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Platform, StyleSheet, Text, View } from 'react-native';
+import { Box, Spinner, Text } from '@gluestack-ui/themed';
+import { ElementRef, useCallback, useMemo, useRef, useState } from 'react';
+import { Platform, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { SearchBar } from '@/components/ui/search-bar';
 import { Mapbox } from '@/config/mapbox';
 import { BrandColors } from '@/constants/theme';
 import { DriveHUD } from '@/features/map/components/DriveHUD';
@@ -10,7 +10,7 @@ import { EventDetailsSheet } from '@/features/map/components/EventDetailsSheet';
 import { EventMarker } from '@/features/map/components/EventMarker';
 import { MapControls } from '@/features/map/components/MapControls';
 import { NearbyUserMarker } from '@/features/map/components/NearbyUserMarker';
-import { mockCenterCoordinate, mockEvents, mockNearbyUsers } from '@/features/map/data/mock';
+import { buildMockEvents, buildMockNearbyUsers, mockCenterCoordinate } from '@/features/map/data/mock';
 import { useLocation } from '@/features/map/hooks/useLocation';
 import { mapStyleUrl } from '@/features/map/styles/mapStyle';
 import { MapEvent, MapMode } from '@/features/map/types';
@@ -26,7 +26,6 @@ export function ExploreScreen() {
   const [zoomLevel, setZoomLevel] = useState(15);
   const [selectedEvent, setSelectedEvent] = useState<MapEvent | null>(null);
   const [mapMode] = useState<MapMode>('idle');
-  const [followUserLocation, setFollowUserLocation] = useState(true);
   const { location, loading, error } = useLocation();
 
   const centerCoordinate = useMemo<[number, number]>(() => {
@@ -36,22 +35,10 @@ export function ExploreScreen() {
     return mockCenterCoordinate;
   }, [location]);
 
-  useEffect(() => {
-    if (!location || !cameraRef.current) {
-      return;
-    }
-    // Só atualiza se estiver seguindo a localização
-    if (followUserLocation) {
-      cameraRef.current.setCamera({
-        centerCoordinate: [location.coords.longitude, location.coords.latitude],
-        zoomLevel,
-        animationDuration: 600,
-      });
-    }
-  }, [location, followUserLocation, zoomLevel]);
+  const mockEvents = useMemo(() => buildMockEvents(centerCoordinate), [centerCoordinate]);
+  const mockNearbyUsers = useMemo(() => buildMockNearbyUsers(centerCoordinate), [centerCoordinate]);
 
   const handleZoomIn = () => {
-    setFollowUserLocation(false);
     const newZoom = Math.min(zoomLevel + 1, MAX_ZOOM);
     setZoomLevel(newZoom);
     if (cameraRef.current) {
@@ -63,7 +50,6 @@ export function ExploreScreen() {
   };
 
   const handleZoomOut = () => {
-    setFollowUserLocation(false);
     const newZoom = Math.max(zoomLevel - 1, MIN_ZOOM);
     setZoomLevel(newZoom);
     if (cameraRef.current) {
@@ -74,34 +60,52 @@ export function ExploreScreen() {
     }
   };
 
-  const handleCenterUser = () => {
-    if (!location || !cameraRef.current) {
+  const handleCenterUser = useCallback(() => {
+    // Validações iniciais
+    if (!location) {
       return;
     }
-    setFollowUserLocation(true);
-    cameraRef.current.setCamera({
-      centerCoordinate: [location.coords.longitude, location.coords.latitude],
-      zoomLevel,
-      animationDuration: 500,
+
+    const { longitude, latitude } = location.coords;
+
+    // Verifica se as coordenadas são válidas
+    if (typeof longitude !== 'number' || typeof latitude !== 'number' || isNaN(longitude) || isNaN(latitude)) {
+      return;
+    }
+
+    // Usa requestAnimationFrame para garantir que o estado foi atualizado
+    // antes de tentar usar setCamera
+    requestAnimationFrame(() => {
+      if (!cameraRef.current) {
+        // Se não tiver ref, apenas ativa o followUserLocation como fallback
+        return;
+      }
+
+      // Centraliza a câmera na localização atual
+      cameraRef.current.setCamera({
+        centerCoordinate: [longitude, latitude],
+        zoomLevel: zoomLevel,
+        animationDuration: 600,
+      });
     });
-  };
+  }, [location, zoomLevel]);
 
   // Só renderiza o mapa quando tiver localização
   if (loading || !location) {
     return (
-      <View style={styles.root}>
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color={BrandColors.orange} />
+      <Box style={styles.root}>
+        <Box style={styles.loadingOverlay}>
+          <Spinner size="large" color={BrandColors.orange} />
           <Text style={styles.loadingText}>
             {loading ? 'Obtendo localização...' : 'Aguardando localização...'}
           </Text>
-        </View>
-      </View>
+        </Box>
+      </Box>
     );
   }
 
   return (
-    <View style={styles.root}>
+    <Box style={styles.root}>
       <Mapbox.MapView
         style={styles.map}
         styleURL={mapStyleUrl}
@@ -114,10 +118,12 @@ export function ExploreScreen() {
         <Mapbox.Camera
           ref={cameraRef}
           defaultSettings={{
-            zoomLevel: 15,
             centerCoordinate: centerCoordinate,
+            zoomLevel: zoomLevel,
           }}
-          followUserLocation={followUserLocation}
+          minZoomLevel={MIN_ZOOM}
+          maxZoomLevel={MAX_ZOOM}
+          followUserLocation={false}
         />
 
         {/* Location Puck com suporte a bearing no Android */}
@@ -160,30 +166,27 @@ export function ExploreScreen() {
       </Mapbox.MapView>
 
       <SafeAreaView style={styles.safeArea} pointerEvents="box-none">
-        <View style={styles.topBar}>
-          <SearchBar onFilterPress={() => undefined} />
-        </View>
 
-        <View style={styles.controls}>
+        <Box style={styles.controls}>
           <MapControls
             onZoomIn={handleZoomIn}
             onZoomOut={handleZoomOut}
             onCenterUser={handleCenterUser}
           />
-        </View>
+        </Box>
 
-        <View style={styles.bottomArea} pointerEvents="box-none">
+        <Box style={styles.bottomArea} pointerEvents="box-none">
           <DriveHUD visible={mapMode === 'driving'} />
           {selectedEvent && <EventDetailsSheet event={selectedEvent} />}
-        </View>
+        </Box>
       </SafeAreaView>
 
       {error && (
-        <View style={styles.errorOverlay}>
+        <Box style={styles.errorOverlay}>
           <Text style={styles.errorText}>{error}</Text>
-        </View>
+        </Box>
       )}
-    </View>
+    </Box>
   );
 }
 

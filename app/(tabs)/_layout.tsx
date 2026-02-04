@@ -43,12 +43,12 @@ export default function TabLayout() {
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarStyle: {
-          backgroundColor: 'transparent',
+          backgroundColor: BrandColors.darkGray,
         },
         tabBarLabelStyle: {
           fontSize: 11,
           marginTop: -2,
-        },
+        }
       }}>
       <Tabs.Screen
         name="index"

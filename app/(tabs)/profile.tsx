@@ -31,13 +31,16 @@ import {
 import ImageCropPicker from 'react-native-image-crop-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { BrandColors } from '@/constants/theme';
 import {
+  BadgesTab,
+  GarageTab,
   ProfileCard,
   ProfileHeader,
   ProfileTabKey,
   SegmentedTabs,
-} from '@/components/profile';
-import { BrandColors } from '@/constants/theme';
+  TeamsTab,
+} from '@/features/profile';
 import { useSignOut as signOut } from '@/hooks/use-auth';
 import { useUserProfile } from '@/hooks/use-user-profile';
 
@@ -305,9 +308,9 @@ export default function ProfileScreen() {
               </VStack>
             </ProfileCard>
             <SegmentedTabs activeTab={activeTab} onChange={setActiveTab} />
-            <Box mx="$6" p="$8" bg={BrandColors.mediumGray} borderRadius="$3xl" alignItems="center" justifyContent="center" style={{ minHeight: 200 }}>
-              <Ionicons name="car" size={64} color={BrandColors.lightGray} />
-            </Box>
+            {activeTab === 'garage' && <GarageTab />}
+            {activeTab === 'teams' && <TeamsTab />}
+            {activeTab === 'badges' && <BadgesTab />}
           </>
         )}
       </ScrollView>

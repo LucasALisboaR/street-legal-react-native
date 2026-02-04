@@ -31,6 +31,7 @@ import {
 import ImageCropPicker from 'react-native-image-crop-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { BrandColors } from '@/constants/theme';
 import {
   BadgesTab,
@@ -52,32 +53,30 @@ export default function ProfileScreen() {
   const [nameDraft, setNameDraft] = useState('');
   const [bioDraft, setBioDraft] = useState('');
   const [saving, setSaving] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   const [avatarKey, setAvatarKey] = useState(0);
-  const avatarUri = profile?.avatarUrl 
+  const avatarUri = profile?.avatarUrl
     ? `${profile.avatarUrl}${profile.avatarUrl.includes('?') ? '&' : '?'}_t=${avatarKey}`
     : undefined;
   const stats = profile?.stats ?? { totalCars: 0, totalEvents: 0, totalBadges: 0 };
 
-  const handleLogout = async () => {
-    Alert.alert('Confirmar Logout', 'Tem certeza que deseja sair?', [
-      {
-        text: 'Cancelar',
-        style: 'cancel',
-      },
-      {
-        text: 'Sair',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await signOut();
-            router.replace('/login');
-          } catch {
-            Alert.alert('Erro', 'Não foi possível fazer logout. Tente novamente.');
-          }
-        },
-      },
-    ]);
+  const handleLogout = () => {
+    setShowLogoutDialog(true);
+  };
+
+  const handleConfirmLogout = async () => {
+    setShowLogoutDialog(false);
+    try {
+      await signOut();
+      router.replace('/login');
+    } catch {
+      Alert.alert('Erro', 'Não foi possível fazer logout. Tente novamente.');
+    }
+  };
+
+  const handleCancelLogout = () => {
+    setShowLogoutDialog(false);
   };
 
   const openEditModal = () => {
@@ -119,17 +118,17 @@ export default function ProfileScreen() {
     const image =
       source === 'camera'
         ? await ImageCropPicker.openCamera({
-            cropping: true,
-            compressImageQuality: 0.9,
-            mediaType: 'photo',
-            ...cropConfig,
-          })
+          cropping: true,
+          compressImageQuality: 0.9,
+          mediaType: 'photo',
+          ...cropConfig,
+        })
         : await ImageCropPicker.openPicker({
-            cropping: true,
-            compressImageQuality: 0.9,
-            mediaType: 'photo',
-            ...cropConfig,
-          });
+          cropping: true,
+          compressImageQuality: 0.9,
+          mediaType: 'photo',
+          ...cropConfig,
+        });
     return image;
   };
 
@@ -182,203 +181,224 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: BrandColors.darkGray }} edges={['top']}>
       <Box flex={1} bg={BrandColors.darkGray}>
-        <ProfileHeader onPressSettings={() => {}} onPressLogout={handleLogout} />
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshProfile} tintColor={BrandColors.orange} />}
-      >
-        {loading && !profile ? (
-          <Box h={280} mx="$6" borderRadius="$3xl" bg={BrandColors.mediumGray} />
-        ) : error && !profile ? (
-          <VStack mx="$6" p="$6" bg={BrandColors.mediumGray} borderRadius="$3xl" alignItems="center" gap="$3">
-            <Ionicons name="alert-circle" size={32} color={BrandColors.orange} />
-            <Text color={BrandColors.lightGray}>Não foi possível carregar o perfil.</Text>
-            <Button bg={BrandColors.orange} px="$5" py="$2.5" borderRadius="$full" onPress={refreshProfile} mt="$2">
-              <ButtonText color={BrandColors.white} fontWeight="$semibold">Tentar novamente</ButtonText>
-            </Button>
-          </VStack>
-        ) : (
-          <>
-            <ProfileCard>
-              <VStack alignItems="center" mt="$4" gap="$3">
-                {/* Avatar centralizado */}
-                <Pressable onPress={() => promptImageSource('avatar')}>
-                  <Box position="relative" alignItems="center" justifyContent="center">
-                    <Avatar size="2xl" borderRadius="$full" borderWidth={3} borderColor={BrandColors.orange}>
-                      {avatarUri ? (
-                        <AvatarImage source={{ uri: avatarUri }} />
-                      ) : (
-                        <AvatarFallbackText bg={BrandColors.mediumGray} fontSize="$2xl">
-                          {profile?.name?.charAt(0)?.toUpperCase() || 'U'}
-                        </AvatarFallbackText>
-                      )}
-                    </Avatar>
-                    <Box
-                      position="absolute"
-                      bottom={0}
-                      right={0}
-                      bg={BrandColors.orange}
-                      borderWidth={2}
-                      borderColor={BrandColors.darkGray}
-                      w={32}
-                      h={32}
-                      borderRadius="$full"
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      <Ionicons name="camera" size={16} color={BrandColors.white} />
-                    </Box>
-                  </Box>
-                </Pressable>
-
-                {/* Nome com ícone de edição */}
-                <HStack alignItems="center" gap="$2" mt="$2">
-                  <Text color={BrandColors.white} fontSize="$xl" fontWeight="$bold">
-                    {profile?.name ?? 'Sem nome'}
-                  </Text>
-                  <Pressable onPress={openEditModal} p="$1.5" borderRadius="$full" bg="rgba(255,69,0,0.15)">
-                    <Ionicons name="pencil" size={16} color={BrandColors.orange} />
-                  </Pressable>
-                </HStack>
-
-                {/* Bio pill */}
-                <Box bg="rgba(255,255,255,0.08)" py="$2" px="$4" borderRadius="$full" mt="$1">
-                  <Text color={BrandColors.lightGray} fontSize="$xs">
-                    {profile?.bio || 'Sem bio por enquanto.'}
-                  </Text>
-                </Box>
-
-                {/* Cards de estatísticas */}
-                <HStack gap="$3" mt="$5" w="100%">
-                  <Pressable flex={1}>
-                    <Box
-                      bg={BrandColors.mediumGray}
-                      borderRadius="$2xl"
-                      py="$3"
-                      alignItems="center"
-                      justifyContent="center"
-                      borderWidth={1}
-                      borderColor="rgba(255,69,0,0.2)"
-                    >
-                      <Text color={BrandColors.white} fontSize="$xl" fontWeight="$bold">
-                        {stats.totalCars}
-                      </Text>
-                      <Text color={BrandColors.lightGray} fontSize="$xs" textTransform="uppercase" letterSpacing={0.6} mt="$1">
-                        Carros
-                      </Text>
-                    </Box>
-                  </Pressable>
-                  <Pressable flex={1}>
-                    <Box
-                      bg={BrandColors.mediumGray}
-                      borderRadius="$2xl"
-                      py="$3"
-                      alignItems="center"
-                      justifyContent="center"
-                      borderWidth={1}
-                      borderColor="rgba(255,69,0,0.2)"
-                    >
-                      <Text color={BrandColors.white} fontSize="$xl" fontWeight="$bold">
-                        {stats.totalEvents}
-                      </Text>
-                      <Text color={BrandColors.lightGray} fontSize="$xs" textTransform="uppercase" letterSpacing={0.6} mt="$1">
-                        Eventos
-                      </Text>
-                    </Box>
-                  </Pressable>
-                  <Pressable flex={1}>
-                    <Box
-                      bg={BrandColors.mediumGray}
-                      borderRadius="$2xl"
-                      py="$3"
-                      alignItems="center"
-                      justifyContent="center"
-                      borderWidth={1}
-                      borderColor="rgba(255,69,0,0.2)"
-                    >
-                      <Text color={BrandColors.white} fontSize="$xl" fontWeight="$bold">
-                        {stats.totalBadges}
-                      </Text>
-                      <Text color={BrandColors.lightGray} fontSize="$xs" textTransform="uppercase" letterSpacing={0.6} mt="$1">
-                        Badges
-                      </Text>
-                    </Box>
-                  </Pressable>
-                </HStack>
-              </VStack>
-            </ProfileCard>
-            <SegmentedTabs activeTab={activeTab} onChange={setActiveTab} />
-            {activeTab === 'garage' && <GarageTab garage={profile?.garage ?? []} />}
-            {activeTab === 'teams' && <TeamsTab />}
-            {activeTab === 'badges' && <BadgesTab />}
-          </>
-        )}
-      </ScrollView>
-
-      <Modal isOpen={editing} onClose={() => setEditing(false)} size="lg">
-        <ModalBackdrop />
-        <ModalContent bg={BrandColors.darkGray} borderRadius="$3xl">
-          <ModalHeader>
-            <Text color={BrandColors.white} fontSize="$lg" fontWeight="$bold">
-              Editar perfil
-            </Text>
-            <ModalCloseButton>
-              <Ionicons name="close" size={20} color={BrandColors.white} />
-            </ModalCloseButton>
-          </ModalHeader>
-          <ModalBody gap="$3">
-            <VStack gap="$3">
-              <Input bg={BrandColors.mediumGray} borderRadius="$md">
-                <InputField
-                  value={nameDraft}
-                  onChangeText={setNameDraft}
-                  placeholder="Nome"
-                  placeholderTextColor={BrandColors.placeholderGray}
-                  color={BrandColors.white}
-                />
-              </Input>
-              <Box bg={BrandColors.mediumGray} borderRadius="$md" style={{ minHeight: 80 }}>
-                <Input bg={BrandColors.mediumGray} borderRadius="$md">
-                  <InputField
-                    value={bioDraft}
-                    onChangeText={setBioDraft}
-                    placeholder="Bio"
-                    placeholderTextColor={BrandColors.placeholderGray}
-                    color={BrandColors.white}
-                    multiline
-                    textAlignVertical="top"
-                    style={{ minHeight: 80 }}
-                  />
-                </Input>
-              </Box>
+        <ProfileHeader onPressSettings={() => { }} onPressLogout={handleLogout} />
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshProfile} tintColor={BrandColors.orange} />}
+        >
+          {loading && !profile ? (
+            <Box h={280} mx="$6" borderRadius="$3xl" bg={BrandColors.mediumGray} />
+          ) : error && !profile ? (
+            <VStack mx="$6" p="$6" bg={BrandColors.mediumGray} borderRadius="$3xl" alignItems="center" gap="$3">
+              <Ionicons name="alert-circle" size={32} color={BrandColors.orange} />
+              <Text color={BrandColors.lightGray}>Não foi possível carregar o perfil.</Text>
+              <Button bg={BrandColors.orange} px="$5" py="$2.5" borderRadius="$full" onPress={refreshProfile} mt="$2">
+                <ButtonText color={BrandColors.white} fontWeight="$semibold">Tentar novamente</ButtonText>
+              </Button>
             </VStack>
-          </ModalBody>
-          <ModalFooter>
-            <HStack gap="$3" flex={1} justifyContent="space-between">
-              <Button
-                flex={1}
-                variant="outline"
-                borderColor={BrandColors.lightGray}
-                borderRadius="$full"
-                onPress={() => setEditing(false)}
-              >
-                <ButtonText color={BrandColors.lightGray}>Cancelar</ButtonText>
-              </Button>
-              <Button
-                flex={1}
-                bg={BrandColors.orange}
-                borderRadius="$full"
-                onPress={handleSave}
-                isDisabled={saving}
-              >
-                <ButtonText color={BrandColors.white} fontWeight="$semibold">
-                  {saving ? 'Salvando...' : 'Salvar'}
-                </ButtonText>
-              </Button>
-            </HStack>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+          ) : (
+            <>
+              <ProfileCard>
+                <VStack alignItems="center" mt="$4" gap="$3">
+                  {/* Avatar centralizado */}
+                  <Pressable onPress={() => promptImageSource('avatar')}>
+                    <Box position="relative" alignItems="center" justifyContent="center">
+                      <Avatar size="2xl" borderRadius="$full" borderWidth={3} borderColor={BrandColors.orange}>
+                        {avatarUri ? (
+                          <AvatarImage source={{ uri: avatarUri }} />
+                        ) : (
+                          <AvatarFallbackText bg={BrandColors.mediumGray} fontSize="$2xl">
+                            {profile?.name?.charAt(0)?.toUpperCase() || 'U'}
+                          </AvatarFallbackText>
+                        )}
+                      </Avatar>
+                      <Box
+                        position="absolute"
+                        bottom={0}
+                        right={0}
+                        bg={BrandColors.orange}
+                        borderWidth={2}
+                        borderColor={BrandColors.darkGray}
+                        w={32}
+                        h={32}
+                        borderRadius="$full"
+                        alignItems="center"
+                        justifyContent="center"
+                      >
+                        <Ionicons name="camera" size={16} color={BrandColors.white} />
+                      </Box>
+                    </Box>
+                  </Pressable>
+
+                  {/* Nome com ícone de edição */}
+                  <HStack alignItems="center" gap="$2" mt="$2">
+                    <Text color={BrandColors.white} fontSize="$xl" fontWeight="$bold">
+                      {profile?.name ?? 'Sem nome'}
+                    </Text>
+                    <Pressable onPress={openEditModal} p="$1.5" borderRadius="$full" bg="rgba(255,69,0,0.15)">
+                      <Ionicons name="pencil" size={16} color={BrandColors.orange} />
+                    </Pressable>
+                  </HStack>
+
+                  {/* Bio pill */}
+                  <Box bg="rgba(255,255,255,0.08)" py="$2" px="$4" borderRadius="$full" mt="$1">
+                    <Text color={BrandColors.lightGray} fontSize="$xs">
+                      {profile?.bio || 'Sem bio por enquanto.'}
+                    </Text>
+                  </Box>
+
+                  {/* Cards de estatísticas */}
+                  <HStack gap="$3" mt="$5" w="100%">
+                    <Pressable flex={1}>
+                      <Box
+                        bg={BrandColors.mediumGray}
+                        borderRadius="$2xl"
+                        py="$3"
+                        alignItems="center"
+                        justifyContent="center"
+                        borderWidth={1}
+                        borderColor="rgba(255,69,0,0.2)"
+                      >
+                        <Text color={BrandColors.white} fontSize="$xl" fontWeight="$bold">
+                          {stats.totalCars}
+                        </Text>
+                        <Text color={BrandColors.lightGray} fontSize="$xs" textTransform="uppercase" letterSpacing={0.6} mt="$1">
+                          Carros
+                        </Text>
+                      </Box>
+                    </Pressable>
+                    <Pressable flex={1}>
+                      <Box
+                        bg={BrandColors.mediumGray}
+                        borderRadius="$2xl"
+                        py="$3"
+                        alignItems="center"
+                        justifyContent="center"
+                        borderWidth={1}
+                        borderColor="rgba(255,69,0,0.2)"
+                      >
+                        <Text color={BrandColors.white} fontSize="$xl" fontWeight="$bold">
+                          {stats.totalEvents}
+                        </Text>
+                        <Text color={BrandColors.lightGray} fontSize="$xs" textTransform="uppercase" letterSpacing={0.6} mt="$1">
+                          Eventos
+                        </Text>
+                      </Box>
+                    </Pressable>
+                    <Pressable flex={1}>
+                      <Box
+                        bg={BrandColors.mediumGray}
+                        borderRadius="$2xl"
+                        py="$3"
+                        alignItems="center"
+                        justifyContent="center"
+                        borderWidth={1}
+                        borderColor="rgba(255,69,0,0.2)"
+                      >
+                        <Text color={BrandColors.white} fontSize="$xl" fontWeight="$bold">
+                          {stats.totalBadges}
+                        </Text>
+                        <Text color={BrandColors.lightGray} fontSize="$xs" textTransform="uppercase" letterSpacing={0.6} mt="$1">
+                          Badges
+                        </Text>
+                      </Box>
+                    </Pressable>
+                  </HStack>
+                </VStack>
+              </ProfileCard>
+              <SegmentedTabs activeTab={activeTab} onChange={setActiveTab} />
+              {activeTab === 'garage' && <GarageTab garage={profile?.garage ?? []} />}
+              {activeTab === 'teams' && <TeamsTab />}
+              {activeTab === 'badges' && <BadgesTab />}
+            </>
+          )}
+        </ScrollView>
+
+        <Modal isOpen={editing} onClose={() => setEditing(false)} size="lg">
+          <ModalBackdrop />
+          <ModalContent bg={BrandColors.darkGray} borderRadius="$3xl">
+            <ModalHeader>
+              <Text color={BrandColors.white} fontSize="$lg" fontWeight="$bold">
+                Editar perfil
+              </Text>
+              <ModalCloseButton>
+                <Ionicons name="close" size={20} color={BrandColors.white} />
+              </ModalCloseButton>
+            </ModalHeader>
+            <ModalBody gap="$3">
+              <VStack gap="$3">
+                <VStack gap="$2">
+                  <Text color={BrandColors.lightGray} fontSize="$sm">
+                    Nome
+                  </Text>
+                  <Input bg={BrandColors.mediumGray} borderRadius="$md">
+                    <InputField
+                      value={nameDraft}
+                      onChangeText={setNameDraft}
+                      placeholder="Nome"
+                      placeholderTextColor={BrandColors.placeholderGray}
+                      color={BrandColors.white}
+                    />
+                  </Input>
+                </VStack>
+                <VStack gap="$2">
+                  <Text color={BrandColors.lightGray} fontSize="$sm">
+                    Bio
+                  </Text>
+                  <Box bg={BrandColors.mediumGray} borderRadius="$md">
+                    <Input bg={BrandColors.mediumGray} borderRadius="$md">
+                      <InputField
+                        value={bioDraft}
+                        onChangeText={setBioDraft}
+                        placeholder="Bio"
+                        placeholderTextColor={BrandColors.placeholderGray}
+                        color={BrandColors.white}
+                        multiline
+                        numberOfLines={3}
+                        maxLength={100}
+                      />
+                    </Input>
+                  </Box>
+                </VStack>
+              </VStack>
+            </ModalBody>
+            <ModalFooter>
+              <HStack gap="$3" flex={1} justifyContent="space-between">
+                <Button
+                  flex={1}
+                  variant="outline"
+                  borderColor={BrandColors.lightGray}
+                  borderRadius="$full"
+                  onPress={() => setEditing(false)}
+                >
+                  <ButtonText color={BrandColors.lightGray}>Cancelar</ButtonText>
+                </Button>
+                <Button
+                  flex={1}
+                  bg={BrandColors.orange}
+                  borderRadius="$full"
+                  onPress={handleSave}
+                  isDisabled={saving}
+                >
+                  <ButtonText color={BrandColors.white} fontWeight="$semibold">
+                    {saving ? 'Salvando...' : 'Salvar'}
+                  </ButtonText>
+                </Button>
+              </HStack>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+
+        {/* Logout Confirmation Dialog */}
+        <ConfirmDialog
+          isOpen={showLogoutDialog}
+          onClose={handleCancelLogout}
+          onConfirm={handleConfirmLogout}
+          title="Confirmar Logout"
+          bodyText="Tem certeza que deseja sair?"
+          btnConfirm="Sair"
+          btnCancel="Cancelar"
+        />
       </Box>
     </SafeAreaView>
   );
@@ -386,6 +406,6 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    paddingBottom: 120,
+    // paddingBottom: 120,
   },
 });

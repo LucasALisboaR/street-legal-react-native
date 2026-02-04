@@ -6,13 +6,6 @@ import {
     HStack,
     Input,
     InputField,
-    Modal,
-    ModalBackdrop,
-    ModalBody,
-    ModalCloseButton,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
     Text,
     VStack,
 } from '@gluestack-ui/themed';
@@ -21,6 +14,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { BrandColors } from '@/constants/theme';
 import { SearchableSelect } from '@/features/profile/components/SearchableSelect';
 import { SimpleSelect } from '@/features/profile/components/SimpleSelect';
@@ -688,45 +682,15 @@ export function CreateCarScreen() {
             </KeyboardAvoidingView>
 
             {/* Confirmation Dialog */}
-            <Modal isOpen={showConfirmDialog} onClose={handleCancelExit} size="md">
-                <ModalBackdrop />
-                <ModalContent bg={BrandColors.darkGray} borderRadius="$3xl">
-                    <ModalHeader>
-                        <Text color={BrandColors.white} fontSize="$lg" fontWeight="$bold">
-                            Descartar alterações?
-                        </Text>
-                        <ModalCloseButton>
-                            <Ionicons name="close" size={20} color={BrandColors.white} />
-                        </ModalCloseButton>
-                    </ModalHeader>
-                    <ModalBody>
-                        <Text color={BrandColors.lightGray} fontSize="$md">
-                            Os dados preenchidos serão perdidos. Deseja continuar?
-                        </Text>
-                    </ModalBody>
-                    <ModalFooter gap="$3">
-                        <Button
-                            variant="outline"
-                            borderColor={BrandColors.lightGray}
-                            borderRadius="$full"
-                            onPress={handleCancelExit}
-                            flex={1}
-                        >
-                            <ButtonText color={BrandColors.lightGray}>Cancelar</ButtonText>
-                        </Button>
-                        <Button
-                            bg={BrandColors.orange}
-                            borderRadius="$full"
-                            onPress={handleConfirmExit}
-                            flex={1}
-                        >
-                            <ButtonText color={BrandColors.white} fontWeight="$semibold">
-                                Confirmar
-                            </ButtonText>
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
+            <ConfirmDialog
+                isOpen={showConfirmDialog}
+                onClose={handleCancelExit}
+                onConfirm={handleConfirmExit}
+                title="Descartar alterações?"
+                bodyText="Os dados preenchidos serão perdidos. Deseja continuar?"
+                btnConfirm="Confirmar"
+                btnCancel="Cancelar"
+            />
         </SafeAreaView>
     );
 }

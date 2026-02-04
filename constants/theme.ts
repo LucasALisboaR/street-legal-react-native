@@ -12,7 +12,7 @@ const tintColorDark = '#fff';
 export const BrandColors = {
   orange: '#FF4500', // Laranja neon principal
   white: '#FFFFFF',
-  darkGray: '#151718', // Background escuro
+  darkGray: '#121212', // Background escuro
   lightGray: '#9BA1A6', // Texto secundário
   mediumGray: '#2A2A2A', // Botões e elementos secundários
   placeholderGray: '#9BA1A6', // Placeholder dos inputs

@@ -1,4 +1,4 @@
-import { ElementRef, useMemo, useRef, useState } from 'react';
+import { ElementRef, useCallback, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Platform, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -26,7 +26,6 @@ export function ExploreScreen() {
   const [zoomLevel, setZoomLevel] = useState(15);
   const [selectedEvent, setSelectedEvent] = useState<MapEvent | null>(null);
   const [mapMode] = useState<MapMode>('idle');
-  const [followUserLocation, setFollowUserLocation] = useState(true);
   const { location, loading, error } = useLocation();
 
   const centerCoordinate = useMemo<[number, number]>(() => {
@@ -40,23 +39,56 @@ export function ExploreScreen() {
   const mockNearbyUsers = useMemo(() => buildMockNearbyUsers(centerCoordinate), [centerCoordinate]);
 
   const handleZoomIn = () => {
-    setFollowUserLocation(false);
     const newZoom = Math.min(zoomLevel + 1, MAX_ZOOM);
     setZoomLevel(newZoom);
+    if (cameraRef.current) {
+      cameraRef.current.setCamera({
+        zoomLevel: newZoom,
+        animationDuration: 200,
+      });
+    }
   };
 
   const handleZoomOut = () => {
-    setFollowUserLocation(false);
     const newZoom = Math.max(zoomLevel - 1, MIN_ZOOM);
     setZoomLevel(newZoom);
+    if (cameraRef.current) {
+      cameraRef.current.setCamera({
+        zoomLevel: newZoom,
+        animationDuration: 200,
+      });
+    }
   };
 
-  const handleCenterUser = () => {
+  const handleCenterUser = useCallback(() => {
+    // Validações iniciais
     if (!location) {
       return;
     }
-    setFollowUserLocation(true);
-  };
+
+    const { longitude, latitude } = location.coords;
+
+    // Verifica se as coordenadas são válidas
+    if (typeof longitude !== 'number' || typeof latitude !== 'number' || isNaN(longitude) || isNaN(latitude)) {
+      return;
+    }
+
+    // Usa requestAnimationFrame para garantir que o estado foi atualizado
+    // antes de tentar usar setCamera
+    requestAnimationFrame(() => {
+      if (!cameraRef.current) {
+        // Se não tiver ref, apenas ativa o followUserLocation como fallback
+        return;
+      }
+
+      // Centraliza a câmera na localização atual
+      cameraRef.current.setCamera({
+        centerCoordinate: [longitude, latitude],
+        zoomLevel: zoomLevel,
+        animationDuration: 600,
+      });
+    });
+  }, [location, zoomLevel]);
 
   // Só renderiza o mapa quando tiver localização
   if (loading || !location) {
@@ -85,12 +117,13 @@ export function ExploreScreen() {
       >
         <Mapbox.Camera
           ref={cameraRef}
-          centerCoordinate={centerCoordinate}
-          zoomLevel={zoomLevel}
+          defaultSettings={{
+            centerCoordinate: centerCoordinate,
+            zoomLevel: zoomLevel,
+          }}
           minZoomLevel={MIN_ZOOM}
           maxZoomLevel={MAX_ZOOM}
-          animationDuration={300}
-          followUserLocation={followUserLocation}
+          followUserLocation={false}
         />
 
         {/* Location Puck com suporte a bearing no Android */}

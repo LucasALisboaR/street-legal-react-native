@@ -18,15 +18,20 @@ import { AuthInput } from '@/components/auth/input';
 import { Logo } from '@/components/auth/logo';
 import { BrandColors } from '@/constants/theme';
 import { authService } from '@/services/auth.service';
+import { isValidEmail, isValidPassword } from '@/utils/sharedFunctions';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const validEmail = isValidEmail(email);
+  const validPassword = isValidPassword(password);
+  const isFormValid = validEmail && validPassword;
+
   const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos');
+    if (!isFormValid) {
+      Alert.alert('Erro', 'Por favor, preencha todos os campos corretamente');
       return;
     }
 
@@ -110,7 +115,7 @@ export default function LoginScreen() {
                 onPress={handleLogin}
                 loading={loading}
                 variant="secondary"
-                disabled={!email.trim() || !password.trim() || loading}
+                disabled={!isFormValid || loading}
               />
 
               <View style={styles.createAccountContainer}>

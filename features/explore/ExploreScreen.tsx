@@ -1,4 +1,4 @@
-import { ElementRef, useEffect, useMemo, useRef, useState } from 'react';
+import { ElementRef, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Platform, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -10,7 +10,7 @@ import { EventDetailsSheet } from '@/features/map/components/EventDetailsSheet';
 import { EventMarker } from '@/features/map/components/EventMarker';
 import { MapControls } from '@/features/map/components/MapControls';
 import { NearbyUserMarker } from '@/features/map/components/NearbyUserMarker';
-import { mockCenterCoordinate, mockEvents, mockNearbyUsers } from '@/features/map/data/mock';
+import { buildMockEvents, buildMockNearbyUsers, mockCenterCoordinate } from '@/features/map/data/mock';
 import { useLocation } from '@/features/map/hooks/useLocation';
 import { mapStyleUrl } from '@/features/map/styles/mapStyle';
 import { MapEvent, MapMode } from '@/features/map/types';
@@ -36,54 +36,26 @@ export function ExploreScreen() {
     return mockCenterCoordinate;
   }, [location]);
 
-  useEffect(() => {
-    if (!location || !cameraRef.current) {
-      return;
-    }
-    // Só atualiza se estiver seguindo a localização
-    if (followUserLocation) {
-      cameraRef.current.setCamera({
-        centerCoordinate: [location.coords.longitude, location.coords.latitude],
-        zoomLevel,
-        animationDuration: 600,
-      });
-    }
-  }, [location, followUserLocation, zoomLevel]);
+  const mockEvents = useMemo(() => buildMockEvents(centerCoordinate), [centerCoordinate]);
+  const mockNearbyUsers = useMemo(() => buildMockNearbyUsers(centerCoordinate), [centerCoordinate]);
 
   const handleZoomIn = () => {
     setFollowUserLocation(false);
     const newZoom = Math.min(zoomLevel + 1, MAX_ZOOM);
     setZoomLevel(newZoom);
-    if (cameraRef.current) {
-      cameraRef.current.setCamera({
-        zoomLevel: newZoom,
-        animationDuration: 200,
-      });
-    }
   };
 
   const handleZoomOut = () => {
     setFollowUserLocation(false);
     const newZoom = Math.max(zoomLevel - 1, MIN_ZOOM);
     setZoomLevel(newZoom);
-    if (cameraRef.current) {
-      cameraRef.current.setCamera({
-        zoomLevel: newZoom,
-        animationDuration: 200,
-      });
-    }
   };
 
   const handleCenterUser = () => {
-    if (!location || !cameraRef.current) {
+    if (!location) {
       return;
     }
     setFollowUserLocation(true);
-    cameraRef.current.setCamera({
-      centerCoordinate: [location.coords.longitude, location.coords.latitude],
-      zoomLevel,
-      animationDuration: 500,
-    });
   };
 
   // Só renderiza o mapa quando tiver localização
@@ -113,10 +85,11 @@ export function ExploreScreen() {
       >
         <Mapbox.Camera
           ref={cameraRef}
-          defaultSettings={{
-            zoomLevel: 15,
-            centerCoordinate: centerCoordinate,
-          }}
+          centerCoordinate={centerCoordinate}
+          zoomLevel={zoomLevel}
+          minZoomLevel={MIN_ZOOM}
+          maxZoomLevel={MAX_ZOOM}
+          animationDuration={300}
           followUserLocation={followUserLocation}
         />
 

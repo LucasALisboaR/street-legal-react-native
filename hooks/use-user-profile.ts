@@ -146,8 +146,24 @@ export function useUserProfile() {
       if (!userId) {
         throw new Error('Usuário não encontrado');
       }
-      await userService.updateAvatar(userId, file);
-      await refreshProfile({ silent: false });
+      const response = await userService.updateAvatar(userId, file);
+      // Atualiza o perfil imediatamente com a resposta do servidor
+      if (response) {
+        const nextCache = { profile: response, timestamp: Date.now() };
+        setProfile(response);
+        memoryCache = nextCache;
+        await persistCache(nextCache);
+        // Atualiza também o usuário sincronizado
+        const syncedUser = await storageService.getSyncedUser();
+        if (syncedUser) {
+          await storageService.saveSyncedUser({
+            ...syncedUser,
+            avatarUrl: response.avatarUrl ?? syncedUser.avatarUrl ?? null,
+          });
+        }
+      }
+      // Força um refresh para garantir que está sincronizado
+      await refreshProfile({ silent: true });
     },
     [refreshProfile, userId]
   );
@@ -157,8 +173,16 @@ export function useUserProfile() {
       if (!userId) {
         throw new Error('Usuário não encontrado');
       }
-      await userService.updateBanner(userId, file);
-      await refreshProfile({ silent: false });
+      const response = await userService.updateBanner(userId, file);
+      // Atualiza o perfil imediatamente com a resposta do servidor
+      if (response) {
+        const nextCache = { profile: response, timestamp: Date.now() };
+        setProfile(response);
+        memoryCache = nextCache;
+        await persistCache(nextCache);
+      }
+      // Força um refresh para garantir que está sincronizado
+      await refreshProfile({ silent: true });
     },
     [refreshProfile, userId]
   );

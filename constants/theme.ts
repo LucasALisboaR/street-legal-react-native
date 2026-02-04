@@ -16,6 +16,7 @@ export const BrandColors = {
   lightGray: '#9BA1A6', // Texto secundário
   mediumGray: '#2A2A2A', // Botões e elementos secundários
   placeholderGray: '#9BA1A6', // Placeholder dos inputs
+  grayImg: '#30343F',
 };
 
 export const MapColors = {
@@ -49,6 +50,39 @@ export const Colors = {
   },
 };
 
+// Fontes customizadas do projeto
+export const CustomFonts = {
+  // Inter - Fonte principal para texto geral
+  inter: {
+    regular: 'Inter-Regular',
+    medium: 'Inter-Medium',
+    semiBold: 'Inter-SemiBold',
+    bold: 'Inter-Bold',
+    extraBold: 'Inter-ExtraBold',
+  },
+  // Montserrat - Fonte para títulos e destaques
+  montserrat: {
+    regular: 'Montserrat-Regular',
+    semiBold: 'Montserrat-SemiBold',
+    bold: 'Montserrat-Bold',
+    extraBold: 'Montserrat-ExtraBold',
+  },
+};
+
+// Fonte padrão do sistema (pode ser alterada aqui)
+// Por padrão, usa Inter Regular para todo o app
+export const DefaultFont = CustomFonts.inter.regular;
+
+// Fontes padrão por tipo de texto
+export const DefaultFonts = {
+  body: CustomFonts.inter.regular,        // Texto geral
+  bodyBold: CustomFonts.inter.semiBold,    // Texto em negrito
+  heading: CustomFonts.montserrat.bold,   // Títulos principais
+  headingLarge: CustomFonts.montserrat.extraBold, // Títulos grandes
+  subtitle: CustomFonts.inter.medium,      // Subtítulos
+};
+
+// Fontes do sistema (fallback)
 export const Fonts = Platform.select({
   ios: {
     /** iOS `UIFontDescriptorSystemDesignDefault` */

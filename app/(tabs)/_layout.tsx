@@ -40,14 +40,23 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: BrandColors.orange,
         tabBarInactiveTintColor: BrandColors.lightGray,
+        tabBarActiveBackgroundColor: 'rgba(255, 69, 0, 0.15)',
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarStyle: {
-          backgroundColor: 'transparent',
+          backgroundColor: BrandColors.darkGray,
+          borderTopWidth: 0,
+          height: 80,
+          paddingHorizontal: 16,
+          paddingTop: 8,
         },
         tabBarLabelStyle: {
           fontSize: 11,
           marginTop: -2,
+        },
+        tabBarItemStyle: {
+          borderRadius: 999,
+          marginHorizontal: 4,
         },
       }}>
       <Tabs.Screen

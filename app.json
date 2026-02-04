@@ -12,7 +12,9 @@
       "bundleIdentifier": "com.streetlegalreactnative",
       "supportsTablet": true,
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Este app precisa da sua localização para exibir no mapa."
+        "NSLocationWhenInUseUsageDescription": "Este app precisa da sua localização para exibir no mapa.",
+        "NSCameraUsageDescription": "Este app precisa acessar a câmera para tirar fotos do perfil.",
+        "NSPhotoLibraryUsageDescription": "Este app precisa acessar a galeria para selecionar fotos do perfil."
       }
     },
     "android": {
@@ -27,8 +29,14 @@
       "predictiveBackGestureEnabled": false,
       "permissions": [
         "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION"
-      ]
+        "ACCESS_COARSE_LOCATION",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_MEDIA_IMAGES",
+        "READ_MEDIA_VIDEO"
+      ],
+      "blockedPermissions": []
     },
     "web": {
       "output": "static",

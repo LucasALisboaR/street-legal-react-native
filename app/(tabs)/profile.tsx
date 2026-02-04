@@ -308,7 +308,7 @@ export default function ProfileScreen() {
               </VStack>
             </ProfileCard>
             <SegmentedTabs activeTab={activeTab} onChange={setActiveTab} />
-            {activeTab === 'garage' && <GarageTab />}
+            {activeTab === 'garage' && <GarageTab garage={profile?.garage ?? []} />}
             {activeTab === 'teams' && <TeamsTab />}
             {activeTab === 'badges' && <BadgesTab />}
           </>

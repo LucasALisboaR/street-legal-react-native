@@ -23,20 +23,6 @@ export function GarageTab({ garage }: GarageTabProps) {
   return (
     <Box mx="$6" mb="$4">
       <VStack gap="$4">
-        {/* Botão Adicionar novo carro */}
-        <Pressable
-          onPress={handleAddCar}
-          style={({ pressed }) => [
-            styles.addButton,
-            pressed && styles.addButtonPressed,
-          ]}
-        >
-          <Ionicons name="add" size={20} color={BrandColors.white} style={styles.addButtonIcon} />
-          <RNText style={styles.addButtonText}>
-            Adicionar novo carro
-          </RNText>
-        </Pressable>
-
         {/* Carrossel de carros */}
         {garage.length > 0 ? (
           <ScrollView
@@ -100,6 +86,20 @@ export function GarageTab({ garage }: GarageTabProps) {
             </Text>
           </Box>
         )}
+
+        {/* Botão Adicionar novo carro */}
+        <Pressable
+          onPress={handleAddCar}
+          style={({ pressed }) => [
+            styles.addButton,
+            pressed && styles.addButtonPressed,
+          ]}
+        >
+          <Ionicons name="add" size={20} color={BrandColors.white} style={styles.addButtonIcon} />
+          <RNText style={styles.addButtonText}>
+            Adicionar novo carro
+          </RNText>
+        </Pressable>
       </VStack>
     </Box>
   );

@@ -14,6 +14,26 @@ export interface UserCrew {
   isLeader: boolean;
 }
 
+export interface UserCar {
+  id: string;
+  brand: string;
+  model: string;
+  year: number;
+  color: string;
+  nickname: string;
+  trim: string;
+  thumbnailUrl: string;
+  specs: {
+    engine: string;
+    horsepower: number;
+    torque: number;
+    transmission: string;
+    drivetrain: string;
+    fuelType: string;
+  },
+  modsList: string[];
+}
+
 export interface UserProfile {
   id: string;
   name: string;
@@ -24,13 +44,31 @@ export interface UserProfile {
   joinedAt: string;
   stats: UserStats;
   crew?: UserCrew | null;
-  garage?: unknown[];
+  garage?: UserCar[];
   achievements?: unknown[];
 }
 
 export interface UpdateUserPayload {
   name: string;
   bio: string;
+}
+
+export interface CreateCarPayload {
+  brand: string;
+  model: string;
+  year: number;
+  color: string;
+  nickname: string;
+  trim: string;
+  specs: {
+    engine: string;
+    horsepower: number;
+    torque: number;
+    transmission: string;
+    drivetrain: string;
+    fuelType: string;
+  };
+  modsList: string[];
 }
 
 export const userService = {
@@ -41,4 +79,6 @@ export const userService = {
     api.postMultipart<UserProfile>(`/users/update-picture/${id}`, data),
   updateBanner: (id: string, data: FormData) =>
     api.postMultipart<UserProfile>(`/users/update-banner/${id}`, data),
+  createCar: (userId: string, payload: CreateCarPayload) =>
+    api.post<UserCar>(`/garage/${userId}`, payload),
 };

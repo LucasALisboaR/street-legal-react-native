@@ -78,7 +78,7 @@ export function GarageTab({ garage }: GarageTabProps) {
 
   return (
     <Box mx="$6" mb="$4">
-      <VStack gap="$4">
+      <VStack gap="$2">
         {/* Carrossel de carros */}
         {garage.length > 0 ? (
           <ScrollView
@@ -101,19 +101,12 @@ export function GarageTab({ garage }: GarageTabProps) {
                   position="relative" 
                   w="100%" 
                   h="100%"
-                  bg={BrandColors.darkGray}
                   borderRadius={24}
                   overflow="hidden"
                 >
-                  {/* Imagem do carro com overlay escuro */}
+                  {/* Fundo do card */}
                   <Box position="absolute" w="100%" h="100%">
-                    <Image
-                      source={{ uri: car.thumbnailUrl }}
-                      style={styles.carImage}
-                      resizeMode="cover"
-                      accessibilityLabel={`${car.brand} ${car.model}`}
-                    />
-                    {/* Overlay gradiente escuro */}
+                    {/* Overlay escuro por completo na imagem de fundo */}
                     <Box 
                       position="absolute" 
                       w="100%" 
@@ -122,6 +115,24 @@ export function GarageTab({ garage }: GarageTabProps) {
                     />
                   </Box>
 
+                  {/* Imagem do carro integrada com o fundo */}
+                  <Box 
+                    position="absolute" 
+                    w="100%" 
+                    h="100%"
+                    alignItems="center"
+                    justifyContent="flex-end"
+                    style={styles.carContainer}
+                  >
+                    
+                    <Image
+                      source={{ uri: car.thumbnailUrl }}
+                      style={styles.carImage}
+                      resizeMode="contain"
+                      accessibilityLabel={`${car.brand} ${car.model}`}
+                    />
+                  </Box>
+                  
                   {/* Informações no topo */}
                   <Box 
                     position="absolute" 
@@ -135,48 +146,36 @@ export function GarageTab({ garage }: GarageTabProps) {
                     alignItems="flex-start"
                   >
                     {/* Topo esquerdo: Ano, Marca e Modelo */}
-                    <VStack gap="$1">
-                      <Text color={BrandColors.white} fontSize="$sm" fontWeight="$normal">
-                        {car.year}
-                      </Text>
-                      <Text color={BrandColors.white} fontSize="$lg" fontWeight="$bold">
+                    <VStack gap="$0">
+                      
+                      <RNText style={styles.brandText}>
                         {car.brand.toUpperCase()}
-                      </Text>
-                      <Text color={BrandColors.orange} fontSize="$xl" fontWeight="$bold">
+                      </RNText>
+                      <RNText style={styles.modelText}>
                         {car.model.toUpperCase()}
-                      </Text>
+                      </RNText>
                     </VStack>
 
                     {/* Topo direito: Boxes informativos */}
                     <VStack gap="$2" alignItems="flex-end">
-                      {/* Box com horsepower */}
-                      {/* <Box
-                        bg={BrandColors.mediumGray}
-                        px="$3"
-                        py="$1.5"
-                        borderRadius="$md"
-                        style={styles.infoBox}
-                      >
-                        <Text color={BrandColors.white} fontSize="$sm" fontWeight="$bold">
-                          {car.specs.horsepower}
-                        </Text>
-                      </Box> */}
-                      {/* Box com drivetrain */}
                       <Box
-                        bg={BrandColors.grayImg}
-                        px="$2.5"
-                        py="$2.5"
+                        px="$1"
                         borderRadius="$md"
                         alignItems="center"
                         justifyContent="center"
+                        flexDirection="row"
+                        gap="$1"
                         style={styles.infoBox}
                       >
                         <Image
                           source={getDrivetrainImage(car.specs.drivetrain)}
-                          style={{ width: 40, height: 40 }}
+                          style={{ width: 40, height: 40, marginTop: 5, marginLeft: -3}}
                           resizeMode="contain"
+                          accessibilityLabel={`${car.specs.drivetrain.toUpperCase()}`}
                         />
-                        <Text color={BrandColors.white} fontSize="$sm" fontWeight="$bold">
+                        <Text color={BrandColors.white} 
+                        fontSize="$sm" 
+                        fontWeight="$bold">
                           {car.specs.drivetrain.toUpperCase()}
                         </Text>
                       </Box>
@@ -240,6 +239,7 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     color: BrandColors.white,
+    fontFamily: 'Montserrat',
     fontWeight: '600',
     fontSize: 16,
   },
@@ -252,12 +252,17 @@ const styles = StyleSheet.create({
     height: 280,
     marginRight: CAROUSEL_ITEM_SPACING,
   },
+  carContainer: {
+    paddingBottom: 10,
+    paddingHorizontal: 20,
+  },
   carImage: {
-    width: '100%',
-    height: '100%',
+    width: '115%',
+    height: '75%',
+    marginBottom: -10,
   },
   darkOverlay: {
-    backgroundColor: 'rgba(21, 23, 24, 0.4)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Filtro escuro por completo na imagem de fundo
   },
   infoBox: {
     shadowColor: '#000',
@@ -265,5 +270,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 4,
+  },
+  // Estilos de texto com fontes customizadas (Montserrat)
+  yearText: {
+    color: BrandColors.white,
+    fontSize: 14,
+    fontFamily: 'Montserrat-Regular', // Fonte mais leve
+  },
+  brandText: {
+    color: BrandColors.white,
+    fontSize: 18,
+    fontFamily: 'Montserrat-Bold', // Fonte média/pesada
+  },
+  modelText: {
+    color: BrandColors.orange,
+    fontSize: 20,
+    fontFamily: 'Montserrat-ExtraBold', // Fonte mais pesada
   },
 });

@@ -76,9 +76,9 @@ export const userService = {
   updateUser: (id: string, payload: UpdateUserPayload) =>
     api.patch<UserProfile>(`/users/${id}`, payload),
   updateAvatar: (id: string, data: FormData) =>
-    api.postMultipart<UserProfile>(`/users/update-picture/${id}`, data),
+    api.postMultipart<UserProfile>(`/users/update-picture`, data),
   updateBanner: (id: string, data: FormData) =>
-    api.postMultipart<UserProfile>(`/users/update-banner/${id}`, data),
+    api.postMultipart<UserProfile>(`/users/update-banner`, data),
   createCar: (userId: string, payload: CreateCarPayload) =>
     api.post<UserCar>(`/garage/${userId}`, payload),
 };

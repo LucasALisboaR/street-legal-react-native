@@ -37,7 +37,6 @@ export function useUserProfile() {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
-
   const cacheAge = useMemo(() => {
     if (!memoryCache) {
       return null;
@@ -66,6 +65,7 @@ export function useUserProfile() {
       setError(null);
       try {
         const response = await userService.getUser(userId);
+        console.log('🚀 ~ useUserProfile ~ response:', response)
         const nextCache = { profile: response, timestamp: Date.now() };
         setProfile(response);
         setLoading(false);
@@ -141,6 +141,16 @@ export function useUserProfile() {
     [refreshProfile, userId]
   );
 
+  const updateUserLocation = (
+    async (payload: { longitude: number; latitude: number }) => {
+      if (!userId) {
+        throw new Error('Usuário não encontrado');
+      }
+      await userService.updateUserLocation({ longitude: payload.longitude, latitude: payload.latitude });
+      await refreshProfile({ silent: false });
+    }
+  );
+
   const updateAvatar = useCallback(
     async (file: FormData) => {
       if (!userId) {
@@ -174,6 +184,7 @@ export function useUserProfile() {
         throw new Error('Usuário não encontrado');
       }
       const response = await userService.updateBanner(userId, file);
+      console.log('🚀 ~ useUserProfile ~ response:', response)
       // Atualiza o perfil imediatamente com a resposta do servidor
       if (response) {
         const nextCache = { profile: response, timestamp: Date.now() };

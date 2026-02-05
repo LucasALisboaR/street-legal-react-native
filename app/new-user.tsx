@@ -17,6 +17,7 @@ import { AuthButton } from '@/components/auth/button';
 import { AuthInput } from '@/components/auth/input';
 import { BrandColors } from '@/constants/theme';
 import { authService } from '@/services/auth.service';
+import { isValidEmail, isValidPassword } from '@/utils/sharedFunctions';
 
 export default function NewUserScreen() {
   const [fullName, setFullName] = useState('');
@@ -26,27 +27,12 @@ export default function NewUserScreen() {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const validEmail = isValidEmail(email);
+  const validPassword = isValidPassword(password);
+  const validConfirmPassword = isValidPassword(confirmPassword) && password === confirmPassword;
+  const isFormValid = fullName !== '' && validEmail && validPassword && validConfirmPassword && acceptedTerms;
+
   const handleCreateAccount = async () => {
-    if (!fullName.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos');
-      return;
-    }
-
-    if (password.length < 6) {
-      Alert.alert('Erro', 'A senha deve ter pelo menos 6 caracteres');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      Alert.alert('Erro', 'As senhas não coincidem');
-      return;
-    }
-
-    if (!acceptedTerms) {
-      Alert.alert('Erro', 'Você deve aceitar os Termos de Uso e Política de Privacidade');
-      return;
-    }
-
     setLoading(true);
     try {
       await authService.register(email, password, fullName);
@@ -166,7 +152,7 @@ export default function NewUserScreen() {
                 onPress={handleCreateAccount}
                 loading={loading}
                 variant="secondary"
-                disabled={!fullName.trim() || !email.trim() || !password.trim() || !confirmPassword.trim() || !acceptedTerms || loading}
+                disabled={!isFormValid || loading}
               />
 
               <View style={styles.loginContainer}>

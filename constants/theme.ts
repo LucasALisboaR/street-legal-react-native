@@ -12,7 +12,7 @@ const tintColorDark = '#fff';
 export const BrandColors = {
   orange: '#FF4500', // Laranja neon principal
   white: '#FFFFFF',
-  darkGray: '#151718', // Background escuro
+  darkGray: '#121212', // Background escuro
   lightGray: '#9BA1A6', // Texto secundário
   mediumGray: '#2A2A2A', // Botões e elementos secundários
   placeholderGray: '#9BA1A6', // Placeholder dos inputs
@@ -52,14 +52,6 @@ export const Colors = {
 
 // Fontes customizadas do projeto
 export const CustomFonts = {
-  // Inter - Fonte principal para texto geral
-  inter: {
-    regular: 'Inter-Regular',
-    medium: 'Inter-Medium',
-    semiBold: 'Inter-SemiBold',
-    bold: 'Inter-Bold',
-    extraBold: 'Inter-ExtraBold',
-  },
   // Montserrat - Fonte para títulos e destaques
   montserrat: {
     regular: 'Montserrat-Regular',
@@ -71,15 +63,15 @@ export const CustomFonts = {
 
 // Fonte padrão do sistema (pode ser alterada aqui)
 // Por padrão, usa Inter Regular para todo o app
-export const DefaultFont = CustomFonts.inter.regular;
+export const DefaultFont = CustomFonts.montserrat.regular;
 
 // Fontes padrão por tipo de texto
 export const DefaultFonts = {
-  body: CustomFonts.inter.regular,        // Texto geral
-  bodyBold: CustomFonts.inter.semiBold,    // Texto em negrito
+  body: CustomFonts.montserrat.regular,        // Texto geral
+  bodyBold: CustomFonts.montserrat.semiBold,    // Texto em negrito
   heading: CustomFonts.montserrat.bold,   // Títulos principais
   headingLarge: CustomFonts.montserrat.extraBold, // Títulos grandes
-  subtitle: CustomFonts.inter.medium,      // Subtítulos
+  subtitle: CustomFonts.montserrat.semiBold,      // Subtítulos
 };
 
 // Fontes do sistema (fallback)

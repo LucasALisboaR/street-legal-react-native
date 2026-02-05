@@ -1,22 +1,5 @@
-import { StyleSheet } from 'react-native';
+import { EventsScreen } from '@/features/events/EventsScreen';
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-
-export default function EventsScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title">Eventos</ThemedText>
-      <ThemedText>Em breve.</ThemedText>
-    </ThemedView>
-  );
+export default function EventsTab() {
+  return <EventsScreen />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-});

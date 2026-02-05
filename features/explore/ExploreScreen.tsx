@@ -1,5 +1,5 @@
 import { Box, Spinner, Text } from '@gluestack-ui/themed';
-import { ElementRef, useCallback, useMemo, useRef, useState } from 'react';
+import { ElementRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -14,6 +14,7 @@ import { buildMockEvents, buildMockNearbyUsers, mockCenterCoordinate } from '@/f
 import { useLocation } from '@/features/map/hooks/useLocation';
 import { mapStyleUrl } from '@/features/map/styles/mapStyle';
 import { MapEvent, MapMode } from '@/features/map/types';
+import { userService } from '@/services/user.service';
 
 // Imagem de seta para o bearing no Android (deve ser PNG, não SVG)
 const userLocationBearingImage = require('@/assets/images/navigation-arrow-fill.png');
@@ -27,6 +28,7 @@ export function ExploreScreen() {
   const [selectedEvent, setSelectedEvent] = useState<MapEvent | null>(null);
   const [mapMode] = useState<MapMode>('idle');
   const { location, loading, error } = useLocation();
+  const [initialUserLocation, setInitialUserLocation] = useState<boolean>(false);
 
   const centerCoordinate = useMemo<[number, number]>(() => {
     if (location) {
@@ -89,6 +91,21 @@ export function ExploreScreen() {
       });
     });
   }, [location, zoomLevel]);
+
+  useEffect(() => {
+    // Só envia se tiver localização válida e não estiver carregando
+    if (!loading && location?.coords && !initialUserLocation) {
+      const { longitude, latitude } = location.coords;
+
+      // Chama o service para enviar a localização
+      userService.updateUserLocation({ longitude, latitude }).then(() => {
+        setInitialUserLocation(true);
+      }).catch((error) => {
+        console.error('Erro ao enviar localização para o backend:', error);
+      });
+    }
+  }, [location, loading, initialUserLocation, setInitialUserLocation]);
+
 
   // Só renderiza o mapa quando tiver localização
   if (loading || !location) {

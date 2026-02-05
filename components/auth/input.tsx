@@ -10,17 +10,31 @@ interface AuthInputProps extends TextInputProps {
   error?: boolean;
 }
 
-export function AuthInput({ icon, secureTextEntry, error, style, ...props }: AuthInputProps) {
+export function AuthInput({ icon, secureTextEntry, error, style, onFocus, onBlur, ...props }: AuthInputProps) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const isPassword = secureTextEntry;
 
+  const handleFocus = (e: any) => {
+    setIsFocused(true);
+    onFocus?.(e);
+  };
+
+  const handleBlur = (e: any) => {
+    setIsFocused(false);
+    onBlur?.(e);
+  };
+
+  // Determina a cor da borda: erro tem prioridade, depois foco, depois transparente
+  const borderColor = error ? '#FF3B30' : isFocused ? BrandColors.orange : 'transparent';
+
   return (
-    <View style={[styles.container, error && styles.containerError]}>
+    <View style={[styles.container, { borderColor }]}>
       {icon && (
         <Ionicons
           name={icon}
           size={20}
-          color={error ? '#FF3B30' : BrandColors.white}
+          color={error ? '#FF3B30' : isFocused ? BrandColors.orange : BrandColors.white}
           style={styles.icon}
         />
       )}
@@ -28,6 +42,8 @@ export function AuthInput({ icon, secureTextEntry, error, style, ...props }: Aut
         style={[styles.input, !icon && styles.inputWithoutIcon]}
         placeholderTextColor={BrandColors.placeholderGray}
         secureTextEntry={isPassword && !isPasswordVisible}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
         {...props}
       />
       {isPassword && (

@@ -17,13 +17,15 @@ import { AuthButton } from '@/components/auth/button';
 import { AuthInput } from '@/components/auth/input';
 import { BrandColors } from '@/constants/theme';
 import { authService } from '@/services/auth.service';
+import { isValidEmail } from '@/utils/sharedFunctions';
 
 export default function ForgetPasswordScreen() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
+  const validEmail = isValidEmail(email);
 
   const handleSendResetLink = async () => {
-    if (!email.trim()) {
+    if (!validEmail) {
       Alert.alert('Erro', 'Por favor, informe seu e-mail');
       return;
     }
@@ -104,7 +106,7 @@ export default function ForgetPasswordScreen() {
                 onPress={handleSendResetLink}
                 loading={loading}
                 variant="secondary"
-                disabled={!email.trim() || loading}
+                disabled={!validEmail || loading}
               />
 
               <View style={styles.loginContainer}>

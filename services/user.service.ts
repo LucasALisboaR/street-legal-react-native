@@ -75,10 +75,12 @@ export const userService = {
   getUser: (id: string) => api.get<UserProfile>(`/users/${id}`),
   updateUser: (id: string, payload: UpdateUserPayload) =>
     api.patch<UserProfile>(`/users/${id}`, payload),
+  updateUserLocation: (payload: { longitude: number; latitude: number }) =>
+    api.patch<UserProfile>(`/users/location`, payload),
   updateAvatar: (id: string, data: FormData) =>
-    api.postMultipart<UserProfile>(`/users/update-picture`, data),
+    api.postMultipart<UserProfile>(`/users/picture`, data),
   updateBanner: (id: string, data: FormData) =>
-    api.postMultipart<UserProfile>(`/users/update-banner`, data),
+    api.postMultipart<UserProfile>(`/users/banner`, data),
   createCar: (userId: string, payload: CreateCarPayload) =>
     api.post<UserCar>(`/garage/${userId}`, payload),
 };

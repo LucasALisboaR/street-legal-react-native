@@ -191,12 +191,14 @@ export default function ProfileScreen() {
       
       // Agora tenta fazer o upload
       try {
+        console.log('🚀 ~ handleImageSource ~ imageSourceMode:', imageSourceMode)
         if (imageSourceMode === 'avatar') {
           await updateAvatar(data);
           // Força o reload da imagem adicionando um timestamp único
           setAvatarKey(Date.now());
         } else {
           await updateBanner(data);
+          console.log('🚀 ~ handleImageSource ~ data:', data)
           // Força o reload do banner adicionando um timestamp único
           setBannerKey(Date.now());
         }
